@@ -6,68 +6,92 @@ const bcrypt=require("bcrypt")
 require("dotenv").config()
 const sendmail=require("../helpers/nodemailer")
 const {signUpTemplate,verifyTemplate,forgotPasswordTemplate}=require("../helpers/html")
- exports.signUp=async(req,res)=>{
-    try {
-        
-    const{firstName,lastName,email,password,role}=req.body
-    if(!firstName ||!lastName||!email||!password ){
-        return res.status(400).json({message:`all requirement must be filled correctly,fullName email password phoneNumber sex)`}) 
-    }
-    const file=req.file ? req.file.path: null
-    let image
-    if(file){
-        try {
-           const image=await cloudinary.uplo.upload(file) 
-        } catch (error) {
-            res.status(500).json({info:`upload failed because ${error}`})
-        }
-    }
-    
-    const user=await userModel.findOne({email})
-    if(user){ 
-        return res.status(400).json({info:`user with email already exist`})
-    }   
-    if(firstName.length && lastName.length <=5 ||password.length<=7){
-        return res.status(400).json({info:'require name must be above 5 character and password length must be at least 8 character'})
-    }
-    if(role==="npo" &&(organizationDetails || organizationName)){
-        return res.status(400).json({info:`organiztion name and details is required for npo`})
-    }
-    if(role==="donor" &&(preferedCategories)){
-        return res.status(400).json({info:`dear valid Donor ,please kindly state your prefered categories `})
-    }
-    const salt=await bcrypt.genSalt(10)
-    const hash=await bcrypt.hash(password,salt)
-   
-    
-    const savedUser= new userModel({
-        
-        firstName,
-        lastName,
-        email:email.toLowerCase(),
-        password:hash,
-        role,
-        profilePic:image? image.url:null
-    })
-    await savedUser.save()
-    const Token=jwt.sign({id:savedUser._id,email:savedUser.email},process.env.JWT_SECRET,{expiresIn:"1hour"})
-    const verifyLink=`${req.protocol}://${req.get("host")}/api/v1/user/verify-email/${Token}`
-    
-    await sendmail({ 
-        email:savedUser.email,
-        subject:"kindly verify your email",
-        html:signUpTemplate(verifyLink,savedUser.firstName)
-    })
 
-    
-    res.status(200).json({info:`congratulation, ${savedUser.firstName} you have successfully signedUp,kindly check your email to verify`,
-        data:savedUser,
-        token:Token
-    })
+exports.signUp = async (req, res) => {
+    try {
+        const {
+            firstName,
+            lastName,
+            email,
+            password,
+            role,
+            organizationName,
+            organizationDetails,
+            preferedCategories
+        } = req.body;
+
+        if (!firstName || !lastName || !email || !password) {
+            return res.status(400).json({ message: `All fields (first name, last name, email, password) must be filled correctly.` });
+        }
+
+        const file = req.file ? req.file.path : null;
+        let image;
+
+        if (file) {
+            try {
+                image = await cloudinary.uploader.upload(file);
+            } catch (error) {
+                return res.status(500).json({ info: `Upload failed because ${error.message}` });
+            }
+        }
+
+        const existingUser = await userModel.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ info: `User with this email already exists.` });
+        }
+
+        if (firstName.length <= 3 || lastName.length <= 3 || password.length <= 7) {
+            return res.status(400).json({ info: 'First and last name must be more than 3 characters, and password must be at least 8 characters.' });
+        }
+
+        if (role === "npo" && (!organizationName || !organizationDetails)) {
+            return res.status(400).json({ info: `Organization name and details are required for NPO.` });
+        }
+
+        if (role === "donor" && !preferedCategories) {
+            return res.status(400).json({ info: `Dear valid Donor, please kindly state your preferred categories.` });
+        }
+
+        
+
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(password, salt);
+
+        const savedUser = new userModel({
+            firstName,
+            lastName,
+            email: email.toLowerCase(),
+            password: hash,
+            role,
+            profilePic: image ? image.url : null,
+            organizationName: role === "npo" ? organizationName : undefined,
+            organizationDetails: role === "npo" ? organizationDetails : undefined,
+            preferedCategories:role==="donor" ? preferedCategories:undefined
+        });
+
+        await savedUser.save();
+
+        const token = jwt.sign({ id: savedUser._id, email: savedUser.email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        const verifyLink = `${req.protocol}://${req.get("host")}/api/v1/user/verify-email/${token}`;
+
+        await sendmail({
+            email: savedUser.email,
+            subject: "Kindly verify your email",
+            html: signUpTemplate(verifyLink, savedUser.firstName)
+        });
+
+        const { password: _, ...user } = savedUser.toObject();
+
+        res.status(200).json({
+            info: `Congratulations, ${savedUser.firstName}! You have successfully signed up. Kindly check your email to verify.`,
+            data: user,
+            token
+        });
     } catch (error) {
-        res.status(500).json({message:`unable to sign-up because ${error}`})
+        res.status(500).json({ message: `Unable to sign-up because ${error.message}` });
     }
- }
+};
+
 exports.verifyEmail=async(req,res)=>{
     try {
         //extract token from params
@@ -99,7 +123,7 @@ exports.logIn=async(req,res)=>{
             return res.status(400).json({info:`log in must contain email and password`})
         }
         const user=await userModel.findOne({email}) 
-        console.log(email);
+        
         if(!user ){
             return res.status(401).json({info:`user with email not found`})
         }
@@ -111,10 +135,11 @@ exports.logIn=async(req,res)=>{
         if(!user.isVerified){
             return res.status(400).json({message:`please verify your email first`})
         }
-        const token=jwt.sign({userId:user._id},process.env.JWT_SECRET,{expiresIn:"1h"})
+        const token=jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn:"1h"})
+        const{password:_,...userData}=user.toObject()
         return res.status(200).json({
             info:`logged in successful`,
-            data:user,
+            data:userData,
              token})
     } catch (error) {
         res.status(500).json({info:`cannot log in because ${error}`})
@@ -293,7 +318,7 @@ exports.getAllAdmins = async (req, res) => {
         console.log("Fetching admins from the database...");
 
         // Find users with roles 'admin1' or 'admin2'
-        const adminsOnly = await userModel.find({ role: { $in: ["Admin1", "Admin2"] } });
+        const adminsOnly = await userModel.find({ role: { $in: ["admin"] } });
 
         console.log(`Admins found: ${adminsOnly.length}`);
         adminsOnly.forEach(admin => {

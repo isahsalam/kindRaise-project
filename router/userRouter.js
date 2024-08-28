@@ -7,8 +7,8 @@ const{authenticate,authenticateAdmin}=require("../middleware/auth")
   
 router.post("/sign-up",uploads.single ('profilepics'),signUp)  
 router.post("/log-in",logIn)
-router.delete("/delete-all",deleteAll)  
-router.get("/get-all",getAll)
+router.delete("/delete-all",authenticate,authenticateAdmin,deleteAll)  
+router.get("/get-all",authenticate,authenticateAdmin,getAll)
 router.put("/update-user/:userId",authenticate,authenticateAdmin,updatedUser)
 router.patch("/make-admin/:userId",makeAdmin)
 
@@ -21,4 +21,4 @@ router.get("/reset-Password/:token",resetPassword)
 router.put("/change-Password/:token",changePassword)
 router.post("/log-out",logOut)
 router.get("/get-one/:id",getOne)
-module.exports=router               
+module.exports=router 

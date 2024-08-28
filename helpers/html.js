@@ -5,7 +5,7 @@ const signUpTemplate = (verifyLink, fullName) => {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>hurray!!! you've successfully signed-up to The Curve Africa  app</title>
+        <title>hurray!!! you've successfully signed-up as a </title>
         <style>
           body {
             font-family: Arial, sans-serif;
@@ -56,7 +56,7 @@ const signUpTemplate = (verifyLink, fullName) => {
       <body>
         <div class="container">
           <div class="header">
-            <h1>TRUE LOVE FROM ISAH ABDULWAHAB!</h1>
+            <h1>Kind raise serves you best!</h1>
           </div>
           <div class="content">
             <p>congratulation ${fullName},</p>
@@ -66,10 +66,10 @@ const signUpTemplate = (verifyLink, fullName) => {
               <a href="${verifyLink}" class="button">Verify My Account</a>
             </p>
             <p>If you did not create an account, please, kindly ignore this email.</p>
-            <p>Best of luck,<br>Isah's co-operation</p>
+            <p>Best of luck,<br>kind raise team</p>
           </div>
           <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} Isah Abdulwahab Enterprise.. All rights reserved.</p>
+            <p>&copy; ${new Date().getFullYear()}  kindRaise team.. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -221,10 +221,10 @@ const signUpTemplate = (verifyLink, fullName) => {
             <p>
               <a href="${resetLink}" class="button">Reset Password</a>
             </p>
-            <p>Best regards,<br>Jay Midas Team</p>
+            <p>Best regards,<br> kind raise Team</p>
           </div>
           <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} Isah Abdulwahab Enterprise. All rights reserved.</p>
+            <p>&copy; ${new Date().getFullYear()}  kindRaise co-operation. All rights reserved.</p>
           </div>
         </div>
       </body>
