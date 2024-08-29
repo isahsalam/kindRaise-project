@@ -6,7 +6,7 @@ const cors=require("cors")
 
 
 const env=require("dotenv").config()
-const db=require("./config/dbConfig")
+const db=require("./Config/dbConfig.js")
 const app=express()
 
 const PORT=process.env.PORT
