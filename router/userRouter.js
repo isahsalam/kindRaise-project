@@ -1,11 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const uploads=require('../utilities/multer')
-const { signUp, logIn, deleteAll, getAll,updatedUser,makeAdmin ,getAllAdmins,deleteOne,verifyEmail,resendVerificationEmail,forgetPassword,resetPassword, changePassword,logOut,getOne}=require("../controller/userController");
+const { signUp, logIn, deleteAll, getAll,updatedUser,makeAdmin ,getAllAdmins,deleteOne,verifyEmail,resendVerificationEmail,forgetPassword,resetPassword, changePassword,logOut,getOne}=require("../controller/userController"); 
+const staffEntryValidator=require("../controller/validator")
 
 const{authenticate,authenticateAdmin}=require("../middleware/auth")
   
-router.post("/sign-up",uploads.single ('profilepics'),signUp)  
+router.post("/sign-up",uploads.single ('profilepics'),staffEntryValidator(true),signUp)  
 router.post("/log-in",logIn)
 router.delete("/delete-all",authenticate,authenticateAdmin,deleteAll)  
 router.get("/get-all",authenticate,authenticateAdmin,getAll)

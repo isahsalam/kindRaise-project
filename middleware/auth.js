@@ -63,13 +63,13 @@ exports.authenticateAdmin = (req, res, next) => {
 };
 exports.authenticateNpo = (req, res, next) => {
     if (req.user.role !== 'npo') { 
-        return res.status(403).json({ message: 'Access Denied. Admin privileges required.' });
+        return res.status(403).json({ message: 'Access Denied. npo privileges required.' });
     }
     next();
 };
 exports.authenticateDonor  = (req, res, next) => {
     if (req.user.role !== 'donor') { 
-        return res.status(403).json({ message: 'Access Denied. Admin privileges required.' });
+        return res.status(403).json({ message: 'Access Denied. donor privileges required.' });
     }
     next();
 };

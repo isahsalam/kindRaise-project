@@ -1,7 +1,7 @@
 const mongoose=require("mongoose")   
 
 const userSchema= new mongoose.Schema({
-  firstName:{type:String,
+  firstName:{type:String, 
     required:true},
 
       lastName:{type:String,
@@ -29,7 +29,10 @@ profilePic:{type:String},
     organizationDetails:{type:String},
 
     preferedCategories:{type:String},
-   
+    npo:{type:mongoose.Schema.Types.ObjectId,
+      ref:"npo"
+    }
+    
  },{timestamps:true})
 
  const userModel=mongoose.model("user",userSchema)

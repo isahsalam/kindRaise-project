@@ -39,8 +39,9 @@ exports.signUp = async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ info: `User with this email already exists.` });
         }
+        
 
-        if (firstName.length <= 3 || lastName.length <= 3 || password.length <= 7) {
+        if (firstName.length < 3 || lastName.length < 3 || password.length <= 7) {
             return res.status(400).json({ info: 'First and last name must be more than 3 characters, and password must be at least 8 characters.' });
         }
 
@@ -392,7 +393,7 @@ exports.getAll = async (req, res) => {
         });
     }
 };
-exports.logOut = async (req, res) => {
+exports.logOut = async (req, res) => { 
     try {
         const auth = req.headers.authorization;
         console.log('Authorization Header:', auth); // Log the entire header
@@ -405,10 +406,10 @@ exports.logOut = async (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         console.log('Decoded Payload:', decoded); // Log the decoded payload
 
-        const { userId } = decoded;
-        console.log('User ID from Token:', userId); // Log the user ID
+        const { id } = decoded;
+        console.log('User ID from Token:', id); // Log the user ID
 
-        const user = await userModel.findById(userId); // Find user by ID
+        const user = await userModel.findById(id); // Find user by ID
         if (!user) {
             return res.status(400).json({ nfo: `Access denied, user not found` });
         }
@@ -418,7 +419,7 @@ exports.logOut = async (req, res) => {
         res.status(200).json({ info: `Log-out successful` });
     } catch (error) {
         if (error instanceof jwt.JsonWebTokenError) {
-            return res.json({ info: `Token expired` });
+            return res.status(401).json({ info: `Token expired` });
         }
         res.status(500).json({ info: `Unable to log-out because ${error}` });
     }
@@ -426,13 +427,13 @@ exports.logOut = async (req, res) => {
 
 exports.getOne=async(req,res)=>{
     try {
-      const {studentId}=req.params
-      const details=await studentModel.findById(studentId) 
+      const {id}=req.params
+      const details=await userModel.findById(id) 
       if(!details){
         return res.status(400).json({info:`user with id not found`})
       }
       res.status(200).json({message:`${details.fullName} details collected successfully`,details})
     } catch (error) {
-        return res.status(500).json({info:`unable to find ${details.fullName} details because ${error} `})
+        return res.status(500).json({info:`unable to find ${details.lastName} details because ${error} `})
     }
 }
