@@ -21,6 +21,11 @@ app.use("/api/v1/",npoRouter)
 app.use("/api/v1/",campaignrouter)
 app.use("/api/v1",donationRouter)
 
+app.get('/', (req, res) => {
+    res.send('Welcome to Kindraise!');
+});
+
+
 
 app.listen(PORT,(req,res)=>{
     console.log(`server is connected to port ${PORT}`)
