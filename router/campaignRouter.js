@@ -11,7 +11,7 @@ campaignrouter.post("/createcampaign",authenticate,createCampaignByIndividual)
 campaignrouter.get("/getallcampaigns",authenticate,getAllIndividualCampaigns)
 campaignrouter.get("/getcampaignbyId/:campaignId",authenticate,getCampaignById)
 campaignrouter.put("/updatecampaign/:campaignId",authenticate,authenticateindividual,updateIndividualCampaign)
-         //npo campaign routes
+         //npo campaign routes 
 campaignrouter.post("/create-campaign",authenticate,createCampaignByNpo)
  campaignrouter.get("/get-campaignbyId/:campaignId",authenticate,getSingleCampaign)
 campaignrouter.get("/get-allCampaign",authenticate,getNpoCampaigns)

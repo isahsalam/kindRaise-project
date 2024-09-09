@@ -12,7 +12,7 @@ router.post("/sign-up",uploads.single ('profilepics'),staffEntryValidator(true),
 router.post("/log-in",NpologIn)
 router.post("/log-out",NpologOut)
 //roles
-router.delete("/delete-all",authenticate,authenticateAdmin,deleteAllNpo)  
+router.delete("/delete-all",deleteAllNpo)  
 router.get("/get-all",authenticate,authenticateAdmin,getAllNpo)
 router.put("/update-user/:userId",updateNpo)
 router.delete("/delete-one/:id",authenticate,authenticateAdmin,deleteOneNpo)

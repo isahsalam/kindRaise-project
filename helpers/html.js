@@ -135,7 +135,7 @@ const verifyTemplate = (verifyLink, fullName) => {
   <body>
     <div class="container">
       <div class="header">
-        <h1>Verify Your Account</h1>
+        <h1>Verify Your Account</h1> 
       </div>
       <div class="content">
         <p>Hello ${fullName},</p>
@@ -231,8 +231,8 @@ const forgotPasswordTemplate = (resetLink, firstName) => {
     </html>
   `;
 };
-const donationTamplate = ( ) => {
-  return`
+const donationTemplate = (name, amount, campaignTitle, date, campaignId) => {
+  return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -306,27 +306,25 @@ const donationTamplate = ( ) => {
             <h1>Thank You for Your Donation!</h1>
         </div>
         <div class="content">
-            <p>Dear <strong>[Donor's Name]</strong>,</p>
-            <p>We sincerely appreciate your generous donation of <strong>₦[Donation Amount]</strong> to our <strong>[Campaign Name]</strong> campaign. Your contribution will help us make a real difference in [brief impact of the donation].</p>
+            <p>Dear <strong>${amount}</strong>,</p>
+            <p>We sincerely appreciate your generous donation of ₦${campaignTitle} to the <strong>${date}</strong> campaign. Your contribution will help us make a real difference.</p>
             <div class="details">
                 <p><strong>Donation Details:</strong></p>
-                <p>Donation Amount: ₦[Donation Amount]</p>
-                <p>Campaign: [Campaign Name]</p>
-                <p>Date: [Donation Date]</p>
-                <p>Transaction ID: [Transaction ID]</p>
+                <p>Donation Amount: ₦${campaignTitle}</p>
+                <p>Campaign: ${campaignTitle}</p> 
+                <p>title: ${date}</p>
             </div>
             <p>We will keep you updated on the progress of the campaign and how your donation is helping us reach our goals.</p>
-            <p>If you have any questions, feel free to <a href="mailto:[Support Email]" style="color: #007bff; text-decoration: none;">contact us</a>.</p>
-            <a href="[Website URL]" class="button">Visit Our Website</a>
+            <a href="" class="button">View Campaign</a>
         </div>
         <div class="footer">
-            <p>&copy; [Organization Name] | [Organization Address] | [Contact Information]</p>
+            <p>&copy; 2024 [Your Organization] | [Organization Address] | [Contact Information]</p>
         </div>
     </div>
 </body>
-</html>`
-}
+</html>`;
+};
 
 
 
-module.exports = { signUpTemplate,verifyTemplate,forgotPasswordTemplate,donationTamplate};
+module.exports = { signUpTemplate,verifyTemplate,forgotPasswordTemplate,donationTemplate};

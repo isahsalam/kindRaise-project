@@ -9,8 +9,9 @@ const donationSchema = new mongoose.Schema({
     type: String,
     default: 'anonymous'
   },
-  recvrAcctNum: {
+  email: {
     type: String,
+    required: true
     
 },
 paymentMethod: {

@@ -2,50 +2,59 @@
 const donationModel=require("../model/donationModel")
 const campaignModel=require("../model/campaignModel")
 const individualModel=require("../model/individualModel")
+const sendmail = require("../helpers/nodemailer")
+const { donationTemplate} = require("../helpers/html")
 const createDonation = async (req, res) => {
     try {
-        const {campaignId}=req.params
-      const { amount, name, message, state, paymentMethod } = req.body;
-  
-      if (!amount || !state  || !paymentMethod) {
-        return res.status(400).json({ error: "All fields are required" });
-      }
-  
-      const campaign = await campaignModel.findById(campaignId);
-      if (!campaign) {
-        return res.status(404).json({ error: "Campaign not found" });
-      }
-  
-      const newDonation = new donationModel({
-        amount,
-        name: name || 'anonymous',
-        message,
-        state,
-        campaign: campaignId,
-        paymentMethod
-      });
-       newDonation.amount += campaign.raised 
+        const { campaignId } = req.params;
+        const { amount, name, email, message, state, paymentMethod } = req.body;
 
+        if (!amount || !state || !paymentMethod || !email) {
+            return res.status(400).json({ error: "All fields are required, including email." });
+        }
 
-    //newDonation.amount.push(newDonation._id)
-    campaign.supporters=(campaign.supporters || 0)+1
-    await newDonation.save()
-  
-       await newDonation.save();
-  
-      // Update campaign progress
-      campaign.totalDonations += amount;
-      await campaign.save();
-  
-      // Respond with a success message
-      return res.status(201).json({
-        message: `dear ${newDonation.name} Thank you for your donation of ${amount} to the ${campaign.title} campaign!`,newDonation
-      });
+        // Find the campaign by ID
+        const campaign = await campaignModel.findById(campaignId);
+        if (!campaign) {
+            return res.status(404).json({ error: "Campaign not found" });
+        }
+
+        // Create new donation
+        const newDonation = new donationModel({
+            amount,
+            name: name || 'anonymous',
+            email,
+            message,
+            state,
+            campaign: campaignId,
+            paymentMethod,
+        });
+
+        // Save donation to the database
+        await newDonation.save();
+
+        // Update campaign with raised amount and supporters
+        campaign.raised = (campaign.raised || 0) + amount;
+        campaign.supporters = (campaign.supporters || 0) + 1;
+        await campaign.save();
+
+        const donationLink = `${req.protocol}://${req.get('host')}/api/v1/campaign/${campaignId}`;
+        await sendmail({
+            email: newDonation.email,
+            subject: 'Thank You for Your Donation!',
+            html: donationTemplate(donationLink,newDonation.name, amount, campaign.title, new Date().toLocaleDateString(), campaignId),
+        });
+
+        // Respond with a success message
+        return res.status(201).json({
+            message: `Dear ${newDonation.name}, thank you for your donation of ₦${amount} to the ${campaign.title} campaign!`,
+            newDonation
+        });
+
     } catch (error) {
-      return res.status(500).json({ error: `Failed to create donation because ${error}` });
+        return res.status(500).json({ error: `Failed to create donation because ${error.message}` });
     }
-  };
-  
+};
 
 // Get a single donation by ID
 const getDonationById = async (req, res) => {
