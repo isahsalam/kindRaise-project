@@ -1,4 +1,7 @@
+const cloudinary = require('../utilis/cloudinary'); 
+
 const multer=require("multer")
+
 
 const storage=multer.diskStorage({
     destination:(req,file,cb)=>{
@@ -14,7 +17,7 @@ const fileFilter=(req,file,cb)=>{
     }else{
         cb(new Error ('image only'),false)
     }
-} 
+}  
 const fileSize={
     limits:1024*1024*10
 }
@@ -23,6 +26,7 @@ const uploads=multer({
     fileFilter,
     limits:fileSize
 })
+  
 module.exports=uploads
 
 
