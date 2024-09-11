@@ -1,4 +1,4 @@
-
+const npoModel = require("../model/npoModel")
 const individualModel = require("../model/individualModel")
 const cloudinary = require("../utilis/cloudinary.js")
 const jwt = require("jsonwebtoken")
@@ -304,12 +304,12 @@ exports.deleteOne = async (req, res) => {
     try {
         const { id } = req.params
 
-        if (req.files && req.files.length > 0) {
-            const oldFilePath = `uploads.${user.photos}`
-            if (fs.existsSinc(oldFilePath)) {
-                fs.unlinkSinc(oldFilePath)
-            }
-        }
+        // if (req.files && req.files.length > 0) {
+        //     const oldFilePath = `uploads.${user.photos}`
+        //     if (fs.existsSinc(oldFilePath)) {
+        //         fs.unlinkSinc(oldFilePath)
+        //     }
+        // }
         const userInfo = await individualModel.findByIdAndDelete(id)
         return res.status(200).json({ info: `delete successful`, })
     } catch (error) {
@@ -425,3 +425,31 @@ exports.deleteAll = async (req, res) => {
         })
     }
 }
+//able to make others an admin
+exports.makeAdmin = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        let userInfo = await individualModel.findById(id);
+        if (!userInfo) {
+            userInfo = await npoModel.findById(id);
+        }
+        if (!userInfo) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        userInfo.isAdmin = true;
+        userInfo.role = 'admin';
+
+        await userInfo.save();
+
+        res.status(200).json({ 
+            info: `Congratulations ${userInfo.firstName}, you are now an admin`, 
+            userInfo 
+        });
+    } catch (error) {
+        res.status(500).json({ message: `Unable to make admin because: ${error.message}` });
+    }
+};
+
+

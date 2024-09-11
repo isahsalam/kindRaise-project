@@ -13,12 +13,12 @@ router.post("/signup",uploads.single ('profilepics'),staffEntryValidator(true),s
 router.post("/login",logIn) 
 router.post("/logout",logOut) 
 //roles
-router.delete("/deleteall",deleteAll)  
-//router.get("/getall",authenticate,authenticateAdmin,getAll) 
+router.delete("/deleteall",authenticate,authenticateAdmin,deleteAll)  
+router.get("/getall",getAll) 
 router.put("/updateuser/:userId",updatedUser)
-//router.delete("/deleteone/:id",authenticate,authenticateAdmin,deleteOne)
+router.delete("/deleteone/:id",authenticate,authenticateAdmin,deleteOne)
 router.get("/getone/:id",getOne) 
-//router.put('/makeadmin/:userId',authenticate,authenticateAdmin,makeAdmin) 
+router.put('/makeadmin/:id',makeAdmin) 
 //security
 router.get("/verifyemail/:token",verifyEmail) 
 router.post("/resendVerificationEmail",resendVerificationEmail)

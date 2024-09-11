@@ -10,7 +10,7 @@ const { donationTemplate,campaignCreatorTemplate} = require("../helpers/html")
 const getDonationById = async (req, res) => {
   try {
     const {donationId}=req.params
-    const individualId=req.user
+    const {id}=req.user
     if (!mongoose.Types.ObjectId.isValid(donationId)) {
         return res.status(400).json({ error: "Invalid donation ID format." });
       }
@@ -19,7 +19,10 @@ const getDonationById = async (req, res) => {
     if (!donation) {
       return res.status(404).json({ error: "Donation not found" });
     }
-    if(donation.campaign.individual.toString()!==individualId){
+    // console.log(donation)
+    console.log(donation.campaign.individual.toString())
+    console.log(id)
+    if(donation.campaign.individual.toString() !== id){
         return res.status(403).json({message:`oops, sorry you can only view donations made to the campaign you created`})
     }
     const campaignTitle=donation.campaign? donation.campaign.title:"unknown campaign"
@@ -52,6 +55,7 @@ const createDonation = async (req, res) => {
           message,
           state,
           campaign: campaignId,
+          individual:campaign.individual._id,
           paymentMethod,
       });
 
@@ -100,44 +104,32 @@ const createDonation = async (req, res) => {
 };
 
 
-// Update a donation
 const getAllDonation = async (req, res) => {
   try {
-    const {campaignId} = req.params 
-    const individualId=req.user
-    const campaign = await campaignModel.findById(campaignId)
+    const { campaignId } = req.params;  
+    const { id } = req.user;  
+    
+    const donations = await donationModel.find({
+      campaign: campaignId,
+      individual: id
+    }).populate("campaign");
+    
+    if (!donations || donations.length === 0) {
+      return res.status(404).json({ error: "No donations found for this campaign" });
+    }
 
-    //check if there is a campaign
-    if(!campaign){
-        return res.status(404).json({
-            error: "campaign not found"
-        })
-    }   
-    const donations = await donationModel.find({campaign:campaignId}).populate("campaign","title,")
-    .populate("individual","firstName");
-    if (!donations ||donations.length===0) {
-      return res.status(404).json({ error: "donations not found in this campaign" });
+    const campaign = await campaignModel.findById(campaignId);
+    if (campaign.individual.toString() !== id) {
+      return res.status(403).json({ message: `Sorry, you can only view donations made to the campaign you created` });
     }
-    if(campaign.individual.toString()!==individualId){
-        return res.status(403).json({message:`oops, sorry you can only view donations made to the campaign you created`})
-    }
-    return res.status(200).json({message:`below are ${donations.length} donations donated to ${campaign.title}`,donations});
+
+    return res.status(200).json({
+      message: `Here are the ${donations.length} donations made to the campaign titled '${campaign.title}'`,
+      donations
+    });
   } catch (error) {
-    return res.status(500).json({ error: `Failed to update donation because ${error}` });
-  }
-};
-
-
-// Delete a donation
-const deleteDonation = async (req, res) => {
-  try {
-    const donation = await Donation.findByIdAndDelete(req.params.id);
-    if (!donation) {
-      return res.status(404).json({ error: "Donation not found" });
-    }
-    return res.status(200).json({ message: "Donation deleted successfully" });
-  } catch (error) {
-    return res.status(500).json({ error: "Failed to delete donation" });
+    console.error(error);
+    return res.status(500).json({ error: `Failed to get all donations because: ${error.message}` });
   }
 };
 
@@ -145,5 +137,5 @@ module.exports = {
   createDonation,
   getDonationById,
   getAllDonation,
-  deleteDonation
+  
 };

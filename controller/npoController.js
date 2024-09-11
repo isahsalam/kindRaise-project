@@ -425,7 +425,7 @@ exports.makeAdmin=async(req,res)=>{
 }
 
 exports.NpoAddUsers=async(req,res)=>{
-    try {
+    try { 
         
     } catch (error) {    
         
