@@ -14,26 +14,18 @@ exports.createCampaignByNpo = async (req, res) => {
             return res.status(400).json({ info: 'All fields are required' });
         }
         const user=await npoModel.findById(npoId)
-        
+         
         if(!user){
             return res.status(404).json({info:`user with id not found`})
         }
        
-        let profilePicUrl = null;
-        if (req.file) {
-            try {
-                const uploadResult = await cloudinary.uploader.upload(req.file.path);
-                profilePicUrl = uploadResult.url;
-            } catch (error) {
-                return res.status(500).json({ message: `Image upload failed: ${error.message}` });
-            } 
-        }
+       
 
         const newCampaign = new campaignModel({
             title,
             subtitle,
             story,
-            Photo:profilePicUrl,
+            
             Goal,
             raised:0,
             npo: npoId,

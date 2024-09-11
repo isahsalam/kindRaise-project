@@ -75,7 +75,7 @@ exports.signUp = async (req, res) => {
         res.status(201).json({
             message: `Congratulations, ${newUser.firstName}! You have successfully signed up as a/an ${newUser.role}. Please check your email to verify your account.`,
             data: individualWithoutPassword,
-            token,
+            token, 
         });
     } catch (error) {
 
@@ -123,7 +123,8 @@ exports.logIn = async (req, res) => {
         if (!email || !password) {
             return res.status(400).json({ info: `log in must contain email and password` })
         }
-        const user = await individualModel.findOne({ email })
+        const lowerCase=email.toLowerCase()
+        const user = await individualModel.findOne({ email :lowerCase})
 
         if (!user) {
             return res.status(401).json({ info: `user with email not found` })
@@ -184,7 +185,7 @@ exports.forgetPassword = async (req, res) => {
             return res.status(400).json({ message: `user with email not in database` })
         }
         const resetToken = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: `20 minutes` })
-        const forgotPasswordLink = `${req.protocol}://${req.get("host")}/api/v1/user/reset-Password/${resetToken}`
+        const forgotPasswordLink = `${req.protocol}://${req.get("host")}/api/v/resetPassword/${resetToken}`
         //send forget password mail
         let mailOptions = {
             email: user.email,
@@ -409,18 +410,18 @@ exports.getOne = async (req, res) => {
         return res.status(500).json({ info: `unable to find user because ${error} ` })
     }
 }
-exports.makeAdmin = async (req, res) => {
+ 
+exports.deleteAll = async (req, res) => {
     try {
-        const { userId } = req.params
-        const user = await individualModel.findById(userId)
-        if (!user) {
-            return res.status(400).json({ info: `user not found` })
+        const allUsers = await individualModel.find()
+        if (allUsers < 1) {
+            return res.status(400).json({ info: `oops!,sorry no user found in database` })
         }
-        user.isAdmin = true
-        user.role = 'admin'
-        await user.save()
-        res.status(200).json({ info: `congratulations ${user.firstName}, you are now an admin`, user })
+        const deleteAllUser = await individualModel.deleteMany({})
+        return res.status(200).json({ info: `all ${allUsers.length} users in database deleted successfully` })
     } catch (error) {
-        res.status(500).json({ message: `unable to make admin because ${error}` })
+        return res.status(500).json({
+            message: `can not delete all user because ${error}`
+        })
     }
 }

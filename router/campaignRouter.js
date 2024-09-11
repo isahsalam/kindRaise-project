@@ -1,12 +1,13 @@
 const express=require("express")
 const campaignrouter=express.Router()
 
-const{ createCampaignByIndividual, getAllIndividualCampaigns, getCampaignById, updateIndividualCampaign }=require("../controller/IndividualcampaignCont")
+const{deleteCampaign, createCampaignByIndividual, getAllIndividualCampaigns, getCampaignById, updateIndividualCampaign }=require("../controller/IndividualcampaignCont")
 const {createCampaignByNpo,getSingleCampaign,getNpoCampaigns,updateNpoCampaign}=require("../controller/npoCampaignCont")
   
 const { authenticate, authenticateindividual }=require("../middleware/auth")
 const staffEntryValidator = require("../middleware/validator")
      //individual campaign routes
+campaignrouter.delete("/deletecampaign",deleteCampaign) 
 campaignrouter.post("/createcampaign",authenticate,createCampaignByIndividual)
 campaignrouter.get("/getallcampaigns",authenticate,getAllIndividualCampaigns)
 campaignrouter.get("/getcampaignbyId/:campaignId",authenticate,getCampaignById)

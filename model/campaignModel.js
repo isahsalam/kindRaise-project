@@ -3,7 +3,6 @@ const campaignSchema = new mongoose.Schema({
     title: String,
     subtitle: String,
     story: String,
-    Photo: String,
     Goal: Number,
     raised: Number,
     status: String,

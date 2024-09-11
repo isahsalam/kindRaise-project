@@ -129,7 +129,8 @@ exports.NpologIn=async(req,res)=>{
         if(!email ||!password){
             return res.status(400).json({info:`log in must contain email and password`})
         }
-        const user=await npoModel.findOne({email}) 
+         const lowerCase=email.toLowerCase()
+        const user = await npoModel.findOne({ email :lowerCase})
         
         if(!user ){
             return res.status(401).json({info:`user with email not found`})
@@ -191,7 +192,7 @@ exports.NpoforgetPassword=async(req,res)=>{
         return res.status(400).json({message:`user with email not in database`})
        } 
         const resetToken=jwt.sign({id:user._id,email:user.email},process.env.JWT_SECRET,{expiresIn:`20 minutes`})
-        const forgotPasswordLink=`${req.protocol}://${req.get("host")}/api/v1/user/reset-Password/${resetToken}`
+        const forgotPasswordLink=`${req.protocol}://${req.get("host")}/api/v1/reset-Password/${resetToken}`
         //send forget password mail
         let mailOptions={
             email:user.email,
@@ -420,5 +421,13 @@ exports.makeAdmin=async(req,res)=>{
         res.status(200).json({info:`congratulations ${user.firstName}, you are now an admin`})
     } catch (error) {
         res.status(500).json({message:`unable to make admin because ${error}`})
+    }
+}
+
+exports.NpoAddUsers=async(req,res)=>{
+    try {
+        
+    } catch (error) {    
+        
     }
 }

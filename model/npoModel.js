@@ -18,7 +18,7 @@ const npoSchema = new mongoose.Schema({
     totalRaised: { type: Number, default: 0 },
     profilePicture: {
         pictureId: { type: String },
-        pictureUrl: { type: String }
+        pictureUrl: { type: String } 
     }
 }, { timestamps: true });
 

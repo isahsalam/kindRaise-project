@@ -18,21 +18,11 @@ exports.createCampaignByIndividual = async (req, res) => {
             return res.status(404).json({info:`user not found`})
         }
        
-        let profilePicUrl = null;
-        if (req.file) {
-            try {
-                const uploadResult = await cloudinary.uploader.upload(req.file.path);
-                profilePicUrl = uploadResult.url;
-            } catch (error) {
-                return res.status(500).json({ message: `Image upload failed: ${error.message}` });
-            } 
-        }
-
+      
         const newCampaign = new campaignModel({
             title,
             subtitle,
             story,
-            Photo:profilePicUrl,
             Goal,
             raised:0,
             individual: individualId,
@@ -86,6 +76,7 @@ exports.getAllIndividualCampaigns = async (req, res) => {
         if (allCampaigns.length < 1) {
             return res.status(400).json({ message: `Oops, dear ${user.lastName}, you have not created any campaigns yet` });
         }
+        
         return res.status(200).json({ 
             message: `Here are all campaigns created by ${user.lastName}`, 
             campaigns: allCampaigns 
@@ -131,3 +122,18 @@ exports.updateIndividualCampaign = async (req, res) => {
         return res.status(500).json({ error: `Server error: ${error.message}` });
     }
 };
+
+exports.deleteCampaign=async(req,res)=>{
+    try {
+        const allUsers = await individualModel.find()
+        if (allUsers < 1) {
+            return res.status(400).json({ info: `oops!,sorry no campaign found in database` })
+        }
+        const campaign=await campaignModel.deleteMany()
+        
+        return res.status(200).json({ message: `all ${allUsers.length}campaigns deleted successfully` });
+    } catch (error) {
+        return res.status(500).json({ error: `Server error: ${error.message}` });
+    }
+   
+}

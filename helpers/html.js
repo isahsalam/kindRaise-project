@@ -231,7 +231,7 @@ const forgotPasswordTemplate = (resetLink, firstName) => {
     </html>
   `;
 };
-const donationTemplate = (name, amount, campaignTitle, date, campaignId) => {
+const donationTemplate = (name, amount, campaignTitle, date, donationLink) => {
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -306,25 +306,134 @@ const donationTemplate = (name, amount, campaignTitle, date, campaignId) => {
             <h1>Thank You for Your Donation!</h1>
         </div>
         <div class="content">
-            <p>Dear <strong>${amount}</strong>,</p>
-            <p>We sincerely appreciate your generous donation of ₦${campaignTitle} to the <strong>${date}</strong> campaign. Your contribution will help us make a real difference.</p>
+            <p>Dear <strong>${name}</strong>,</p>
+            <p>We sincerely appreciate your generous donation of ₦${amount} to the <strong>${campaignTitle}</strong> campaign. Your contribution will help us make a real difference.</p>
             <div class="details">
                 <p><strong>Donation Details:</strong></p>
-                <p>Donation Amount: ₦${campaignTitle}</p>
-                <p>Campaign: ${campaignTitle}</p> 
-                <p>title: ${date}</p>
+                <p>Donation Amount: ₦${amount}</p>
+                <p>Campaign: ${campaignTitle}</p>
+                <p>Date: ${date}</p>
             </div>
             <p>We will keep you updated on the progress of the campaign and how your donation is helping us reach our goals.</p>
-            <a href="" class="button">View Campaign</a>
+            <a href="${donationLink}" class="button">View Campaign</a>
         </div>
         <div class="footer">
             <p>&copy; 2024 [Your Organization] | [Organization Address] | [Contact Information]</p>
         </div>
     </div>
 </body>
-</html>`;
+</html>
+  `;
 };
 
 
+// const campaignCreatorTemplate = (campaign ,newDonation )=>{
+//   return `,
+//               <!DOCTYPE html>
+//               <html lang="en">
+//               <head>
+//                   <meta charset="UTF-8">
+//                   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//                   <title>Donation Alert</title>
+//                   <style>
+//                       body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+//                       .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+//                       p { line-height: 1.6; }
+//                   </style>
+//               </head>
+//               <body>
+//                   <div class="container">
+//                       <p>Dear ${campaign.individual.name},</p>
+//                       <p>We are pleased to notify you that <strong>${newDonation.name}</strong> has successfully donated ₦${newDonation.amount} to your campaign <strong>${campaign.title}</strong>.</p>
+//                       <p>This contribution will help move your campaign closer to its goals. Thank you for your continuous effort to make a difference.</p>
+//                       <p>Best regards,</p>
+//                       <p>Your platform team</p>
+//                   </div>
+//               </body>
+//               </html>
+//               `
+// };
 
-module.exports = { signUpTemplate,verifyTemplate,forgotPasswordTemplate,donationTemplate};
+
+const campaignCreatorTemplate = (campaignLink = '',name) => {
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Donation Alert</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 100%;
+            padding: 20px;
+            background-color: #ffffff;
+            max-width: 600px;
+            margin: 0 auto;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+        }
+        .header h1 {
+            margin: 0;
+        }
+        .content {
+            padding: 20px;
+            text-align: left;
+            color: #333;
+        }
+        .content p {
+            line-height: 1.6;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #777;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Donation Alert</h1>
+        </div>
+        <div class="content">
+            <p>Dear Campaign Creator ${name},</p>
+            <p>We are pleased to notify you that someone has successfully donated to your campaign.</p>
+            <p>You can view the details of your campaign <a href="${campaignLink}" class="button">here</a>.</p>
+            <p>Thank you for your efforts!</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2024 [Your Organization] | [Organization Address] | [Contact Information]</p>
+        </div>
+    </div>
+</body>
+</html>
+  `;
+};
+
+
+module.exports = { signUpTemplate,verifyTemplate,forgotPasswordTemplate,donationTemplate,campaignCreatorTemplate};
