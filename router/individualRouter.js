@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const uploads=require("../utilis/multer.js")
 
-const { signUp, logIn,updatedUser,verifyEmail,resendVerificationEmail,forgetPassword,resetPassword, changePassword,logOut,getOne}=require("../controller/individualController"); 
+const { signUp, logIn,updatedindividual,verifyEmail,resendVerificationEmail,forgetPassword,resetPassword, changePassword,logOut,getOne}=require("../controller/individualController"); 
 
 const userValidator=require("../middleware/validator") 
 
@@ -15,7 +15,7 @@ router.post("/logout",logOut)
 //roles
  
 
-router.put("/updateuser/:userId",updatedUser)
+router.patch("/updateuser/:id",updatedindividual)
 router.get("/getone/:id",getOne) 
  
 //security

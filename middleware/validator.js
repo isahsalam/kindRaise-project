@@ -85,11 +85,15 @@ const schemas = {
         .optional()
         .regex(/^[A-Z0-9]{6,10}$/
         ),
-        name: joiValidator
-        .string()
+        name: joiValidator.string().trim()
+        .min(3)
         .optional()
-        .regex(/^[A-Za-z\s'-]{2,50}$/
-        ),
+        .pattern(/^[^\s].*[^\s]$/) 
+        .pattern(/^[A-Za-z]+(?: [A-Za-z]+)*$/) 
+        .messages({
+            'string.pattern.base': 'name  must not start or end with  spaces and should contain only letters.',
+            'string.min': 'name  must be at least 3 characters long.',
+        }),
         story: joiValidator
         .string()
         .optional()

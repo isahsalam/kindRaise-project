@@ -277,40 +277,49 @@ exports.changePassword = async (req, res) => {
     }
 }
 
-
-
-exports.updatedUser = async (req, res) => {
+exports.updatedindividual = async (req, res) => {
     try {
-        const { id } = req.params
-        const { firstName, lastName, email } = req.body
-        const user = await individualModel.findById(id)
+        const { id } = req.params;
+        const { firstName, lastName } = req.body;
+
+        // Find the user by ID
+        const user = await individualModel.findById(id);
         if (!user) {
-            return res.status(400).json({ info: `user not found,check id and try again` })
+            return res.status(400).json({ info: `User not found, check the ID and try again.` });
         }
-        const data = new individualModel({
+
+        // Update the first name and last name if provided
+        const updatedData = {
             firstName: firstName || user.firstName,
             lastName: lastName || user.lastName,
-            email: email || user.email,
-            photos: user.photos
+        };
 
-        })
-
-        //check if user is passing an image
+        // Check if a new image is being uploaded
         if (req.files && req.files.length > 0) {
-            console.log(req.files)
-            //dynamically gets the old file path
-            const oldFilePath = `uploads/${user.photos}`
-            if (fs.existsSinc(oldFilePath)) {
-                fs.unlinkSinc(oldFilePath)
+            // Delete the old profile picture if it exists
+            const oldFilePath = path.join(__dirname, 'uploads', user.photos);
+            if (fs.existsSync(oldFilePath)) {
+                fs.unlinkSync(oldFilePath); // Delete old image
             }
-            data.photo = req.files.filename
-            const updateUser = await individualModel.findByIdAndUpdate(id, data, { new: true })
+
+            // Update the photo field with the new filename
+            updatedData.photos = req.files[0].filename; // Assuming req.files[0] contains the new file
         }
-        res.status(200).json({ message: `user updated successfully`, data: updateUser })
+
+        // Perform the update using findByIdAndUpdate
+        const updatedUser = await individualModel.findByIdAndUpdate(id, updatedData, { new: true });
+
+        res.status(200).json({
+            message: `User updated successfully`,
+            firstName: updatedUser.firstName,
+            lastName: updatedUser.lastName,
+            photo: updatedUser.photos
+        });
     } catch (error) {
-        res.status(200).json({ message: error.message })
+        console.log(error);
+        res.status(500).json({ message: `Error: ${error.message}` });
     }
-}
+};
 
 exports.logOut = async (req, res) => {
     try {

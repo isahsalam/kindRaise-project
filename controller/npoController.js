@@ -285,43 +285,45 @@ res.status(500).json({info:`unable to change password because ${error}`})
     }
 }
 
-
-
-exports.updateNpo=async(req,res)=>{
+exports.updateNpo = async (req, res) => {
     try {
-        const {id}=req.params
-        const{firstName,lastName,email}=req.body
-        const user=await npoModel.findById(id)
+        const { id } = req.params;
+        const { firstName, lastName } = req.body
+
+        const user = await npoModel.findById(id);
         if (!user) {
-            return res.status(400).json({info:`user not found,check id and try again`})
+            return res.status(400).json({ info: `User not found, check the ID and try again.` });
         }
-        const data=new npoModel({
-            firstName:firstName||user.firstName,
-            lastName:lastName||user.lastName,
-            email:email||user.email,
-            photos:user.photos
+
+        const updatedData = {
+            firstName: firstName || user.firstName,
+            lastName: lastName || user.lastName,
+        };
+
     
-        })
-       
-        //check if user is passing an image
-        if(req.files &&req.files.length>0){
-            console.log(req.files)
-            //dynamically gets the old file path
-     const oldFilePath=`uploads/${user.photos}`
-        if(fs.existsSinc(oldFilePath)){
-            fs.unlinkSinc(oldFilePath)
+        if (req.files && req.files.length > 0) {
+            // Delete the old profile picture if it exists
+            const oldFilePath = path.join(__dirname, 'uploads', user.photos);
+            if (fs.existsSync(oldFilePath)) {
+                fs.unlinkSync(oldFilePath); // Delete old image
+            }
+
+            
+            updatedData.photos = req.files[0].filename; 
         }
-      data.photo=req.files.filename
-      const updateUser=await npoModel.findByIdAndUpdate(id,data,{new:true})
-    }
-    res.status(200).json({message:`user updated successfully`,data:updateUser})
+        const updatedUser = await npoModel.findByIdAndUpdate(id, updatedData, { new: true });
+
+        res.status(200).json({
+            message: `User updated successfully`,
+            firstName: updatedUser.firstName,
+            lastName: updatedUser.lastName,
+            photo: updatedUser.photos
+        });
     } catch (error) {
-        res.status(200).json({message:error.message})
+        console.log(error);
+        res.status(500).json({ message: `Error: ${error.message}` });
     }
-}
-
-
-
+};
 exports.NpologOut = async (req, res) => { 
     try {
         const auth = req.headers.authorization;

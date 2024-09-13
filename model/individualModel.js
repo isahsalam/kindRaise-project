@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const individualSchema = new mongoose.Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
-  phoneNumber: { type: String, unique: true },
-  email: { type: String, required: true, unique: true },
+  phoneNumber: { type: String },
+  email: { type: String, unique: true,required: true },
   password: { type: String, required: true },
   //scamThreat: { type: Boolean, default: false }
   profilePic: { type: String },
