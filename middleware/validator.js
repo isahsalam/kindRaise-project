@@ -80,11 +80,12 @@ const schemas = {
             'string.pattern.base': 'organizationName name must not start or end with  spaces and should contain only letters.',
             'string.min': 'organizationName name must be at least 3 characters long.',
         }),
-    registrationNumber: joiValidator
-        .string()
-        .optional()
-        .regex(/^[A-Z0-9]{6,10}$/
-        ),
+    // registrationNumber: joiValidator
+    //     .string()
+    //     .optional()
+    //     .regex(/^[A-Z0-9]{6,10}$/
+    //     ),
+    
         name: joiValidator.string().trim()
         .min(3)
         .optional()
@@ -115,6 +116,8 @@ const schemas = {
         
         
 };
+
+
 const userValidator = (validateAllFields = false, fieldsToValidate = []) => {
     return async (req, res, next) => {
         // Only trim fields that exist in the request body
@@ -132,8 +135,9 @@ const userValidator = (validateAllFields = false, fieldsToValidate = []) => {
             }
         });
 
+        const {firstName,lastName,email,password,organizationName,ConfirmNewPassword,phoneNumber,story,title,subtitle,oldPassword,NewPassword} = req.body
         const schema = joiValidator.object(keysToValidate);
-        const { error } = schema.validate(req.body);
+        const { error } = schema.validate({firstName,lastName,email,password,organizationName,ConfirmNewPassword,phoneNumber,story,title,subtitle,oldPassword,NewPassword});
 
         if (error) {
             return res.status(400).json({ message: error.details[0].message });
