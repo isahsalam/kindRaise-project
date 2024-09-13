@@ -344,6 +344,9 @@ exports.NpologOut = async (req, res) => {
         if (!user) {
             return res.status(400).json({ nfo: `Access denied, user not found` });
         }
+        if (user.blackList.includes(token)) {
+            return res.status(400).json({ message: `login again to continue` })
+        }
 
         user.blackList.push(token);
         await user.save();

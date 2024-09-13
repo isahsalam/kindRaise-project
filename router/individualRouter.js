@@ -11,7 +11,7 @@ const { deleteByAdmin,makeAdmin,deleteAll,getAllIndividual,getAllNpo,deleteOneNp
    //onboarding
 router.post("/signup",uploads.single ('profilepics'),userValidator(true),signUp)  
 router.post("/login",logIn) 
-router.post("/logout",logOut) 
+router.post("/logout",logOut,authenticate) 
 //roles
  
 

@@ -342,7 +342,7 @@ exports.logOut = async (req, res) => {
             return res.status(400).json({ nfo: `Access denied, user not found` });
         }
         if (user.blackList.includes(token)) {
-            return res.status(400).json({ message: `bad request,token has already been used` })
+            return res.status(400).json({ message: `login again to continue` })
         }
 
         user.blackList.push(token);
