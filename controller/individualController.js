@@ -21,9 +21,22 @@ exports.signUp = async (req, res) => {
 
 
         // Check if user already exists
-        const existingUser = await individualModel.findOne({ email: email.toLowerCase() });
-        if (existingUser) {
-            return res.status(400).json({ message: 'A user with this email already exists.' });
+        // const existingUser = await individualModel.findOne({ email: email.toLowerCase() });
+        // if (existingUser) {
+        //     return res.status(400).json({ message: 'A user with this email already exists.' });
+        // }
+        const existingIndividual = await individualModel.findOne({ email: email.toLowerCase() });
+        const existingNpo = await npoModel.findOne({ email });
+
+        const existingPhoneIndividual = await individualModel.findOne({ phoneNumber });
+        const existingPhoneNpo = await npoModel.findOne({ phoneNumber });
+
+        if (existingIndividual || existingNpo) {
+            return res.status(400).json({ message: 'Email already in use' });
+        }
+
+        if (existingPhoneIndividual || existingPhoneNpo) {
+            return res.status(400).json({ message: 'Phone number already in use' });
         }
 
 
@@ -122,7 +135,7 @@ exports.logIn = async (req, res) => {
         const { email, password } = req.body
         if (!email || !password) {
             return res.status(400).json({ info: `log in must contain email and password` })
-        }
+        } 
         const lowerCase=email.toLowerCase()
         const user = await individualModel.findOne({ email :lowerCase})
 
@@ -137,7 +150,7 @@ exports.logIn = async (req, res) => {
         if (!user.isVerified) {
             return res.status(400).json({ message: `please verify your email first` })
         }
-        const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1h" })
+        const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1h" })
         const { password: _, ...userData } = user.toObject()
         return res.status(200).json({
             info: `logged in successful`,
@@ -218,7 +231,7 @@ exports.resetPassword = async (req, res) => {
         const user = await individualModel.findOne({ email });
 
         if (!user) {
-            return res.status(400).json({ info: 'User not found' });
+            return res.status(400).json({ info: 'User not found' }); 
         }
 
         // Hash the new password
@@ -299,69 +312,6 @@ exports.updatedUser = async (req, res) => {
     }
 }
 
-
-exports.deleteOne = async (req, res) => {
-    try {
-        const { id } = req.params
-
-        // if (req.files && req.files.length > 0) {
-        //     const oldFilePath = `uploads.${user.photos}`
-        //     if (fs.existsSinc(oldFilePath)) {
-        //         fs.unlinkSinc(oldFilePath)
-        //     }
-        // }
-        const userInfo = await individualModel.findByIdAndDelete(id)
-        return res.status(200).json({ info: `delete successful`, })
-    } catch (error) {
-        res.status(500).json({ info: `${error.message}` })
-    }
-}
-
-exports.deleteAll = async (req, res) => {
-    try {
-        const allUsers = await individualModel.find()
-        if (allUsers < 1) {
-            return res.status(400).json({ info: `oops!,sorry no user found in database` })
-        }
-        const deleteAllUser = await individualModel.deleteMany({})
-        return res.status(200).json({ info: `all ${allUsers.length} users in database deleted successfully` })
-    } catch (error) {
-        return res.status(500).json({
-            message: `can not delete all user because ${error}`
-        })
-    }
-}
-
-
-exports.getAll = async (req, res) => {
-    try {
-        const allUsers = await individualModel.find();
-        if (allUsers <= 0) {
-            return res.status(400).json({ info: `oops !! no user found in database` })
-        }
-
-        const everyUsers = allUsers.map(user => {
-
-            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1 hour" });
-
-
-            return {
-                ...user.toObject(),
-                token,
-                isAdmin: user.role === 'admin' ? true : false
-            };
-        });
-
-        return res.status(200).json({
-            info: `All ${allUsers.length} users in the database collected successfully`,
-            users: everyUsers
-        });
-    } catch (error) {
-        return res.status(500).json({
-            message: `Cannot get all users because ${error}`
-        });
-    }
-};
 exports.logOut = async (req, res) => {
     try {
         const auth = req.headers.authorization;
@@ -411,45 +361,5 @@ exports.getOne = async (req, res) => {
     }
 }
  
-exports.deleteAll = async (req, res) => {
-    try {
-        const allUsers = await individualModel.find()
-        if (allUsers < 1) {
-            return res.status(400).json({ info: `oops!,sorry no user found in database` })
-        }
-        const deleteAllUser = await individualModel.deleteMany({})
-        return res.status(200).json({ info: `all ${allUsers.length} users in database deleted successfully` })
-    } catch (error) {
-        return res.status(500).json({
-            message: `can not delete all user because ${error}`
-        })
-    }
-}
-//able to make others an admin
-exports.makeAdmin = async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        let userInfo = await individualModel.findById(id);
-        if (!userInfo) {
-            userInfo = await npoModel.findById(id);
-        }
-        if (!userInfo) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        userInfo.isAdmin = true;
-        userInfo.role = 'admin';
-
-        await userInfo.save();
-
-        res.status(200).json({ 
-            info: `Congratulations ${userInfo.firstName}, you are now an admin`, 
-            userInfo 
-        });
-    } catch (error) {
-        res.status(500).json({ message: `Unable to make admin because: ${error.message}` });
-    }
-};
 
 

@@ -5,6 +5,7 @@ const npoRouter=require("./router/npoRouter")
 const campaignrouter=require("./router/campaignRouter.js")
 const donationRouter=require("./router/donationRouter.js")
 const cors=require("cors")
+const morgan=require("morgan")
  
 
 const env=require("dotenv").config()
@@ -16,6 +17,7 @@ const PORT=process.env.PORT
 app.use(express.json())
 router.use(express.urlencoded({ extended: true }));
 app.use(cors({origin:"*"}))
+app.use(morgan("dev"))
 app.use("/api/v1/",router) 
 app.use("/api/v1/",npoRouter)
 app.use("/api/v1/",campaignrouter)

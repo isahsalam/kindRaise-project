@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const uploads=require("../utilis/multer")
 
-const { NposignUp, NpologIn, deleteAllNpo, getAllNpo,updateNpo,deleteOneNpo,NpoverifyEmail,NporesendVerificationEmail,NpoforgetPassword,NporesetPassword, NpochangePassword,NpologOut,getOneNpo,makeAdmin}=require("../controller/npoController")
+const { NposignUp, NpologIn,updateNpo,NpoverifyEmail,NporesendVerificationEmail,NpoforgetPassword,NporesetPassword, NpochangePassword,NpologOut,getOneNpo}=require("../controller/npoController")
 
 const staffEntryValidator=require("../middleware/validator") 
 
@@ -12,12 +12,9 @@ router.post("/sign-up",uploads.single ('profilepics'),staffEntryValidator(true),
 router.post("/log-in",NpologIn)
 router.post("/log-out",NpologOut)
 //roles
-router.delete("/delete-all",deleteAllNpo)  
-router.get("/get-all",authenticate,authenticateAdmin,getAllNpo)
 router.put("/update-user/:userId",updateNpo)
-router.delete("/delete-one/:id",authenticate,authenticateAdmin,deleteOneNpo)
+
 router.get("/get-one/:id",getOneNpo)  
-router.get(`/make-admin/:userId`, authenticateAdmin, makeAdmin)
 //security
 router.get("/verify-email/:token",NpoverifyEmail)
 router.post("/resend-VerificationEmail",NporesendVerificationEmail)

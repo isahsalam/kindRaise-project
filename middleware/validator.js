@@ -31,19 +31,55 @@ const schemas = {
         .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,50}$/)
         .messages({
             "string.pattern.base": "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
-            "string.empty": "Password cannot be empty",
-        }),
+            "string.empty": "Password cannot be empty, must be at least 8 character maximum of 50 characters",
+        }), 
+        oldPassword: joiValidator
+        .string()
+        .min(8)
+        .max(50)
+        .optional()
+        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,50}$/)
+        .messages({
+            "string.pattern.base": "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
+            "string.empty": "Password cannot be empty, must be at least 8 character maximum of 50 characters",
+        }), 
+        NewPassword: joiValidator
+        .string()
+        .min(8)
+        .max(50)
+        .optional()
+        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,50}$/)
+        .messages({
+            "string.pattern.base": "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
+            "string.empty": "Password cannot be empty, must be at least 8 character maximum of 50 characters",
+        }), 
+        ConfirmNewPassword: joiValidator
+        .string()
+        .min(8)
+        .max(50)
+        .optional()
+        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,50}$/)
+        .messages({
+            "string.pattern.base": "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
+            "string.empty": "Password cannot be empty, must be at least 8 character maximum of 50 characters",
+        }), 
     phoneNumber: joiValidator
         .string()
         .min(11)
-        .max(11)
+        .max(11) 
         .required()
         .regex(/^(?:\+234|0)(70|80|81|90|91)[0-9]{8}$/)
         .message(`phone number must be a valid nigerian number`),
        
-    organizationName: joiValidator
-        .string()
-        .optional(),
+        organizationName: joiValidator.string().trim()
+        .min(3)
+        .optional()
+        .pattern(/^[^\s].*[^\s]$/) // Ensures no leading or trailing spaces
+        .pattern(/^[A-Za-z]+(?: [A-Za-z]+)*$/) // Ensures only alphabetic characters and allows spaces within
+        .messages({
+            'string.pattern.base': 'organizationName name must not start or end with  spaces and should contain only letters.',
+            'string.min': 'organizationName name must be at least 3 characters long.',
+        }),
     registrationNumber: joiValidator
         .string()
         .optional()
@@ -75,24 +111,22 @@ const schemas = {
         
         
 };
-
-const staffEntryValidator = (validateAllFields = false) => {
+const userValidator = (validateAllFields = false, fieldsToValidate = []) => {
     return async (req, res, next) => {
-        // Trim input fields
-        req.body.firstName = req.body.firstName ? req.body.firstName.trim() : '';
-        req.body.lastName = req.body.lastName ? req.body.lastName.trim() : '';
-        req.body.email = req.body.email ? req.body.email.trim() : '';
+        // Only trim fields that exist in the request body
+        if (req.body.firstName) req.body.firstName = req.body.firstName.trim();
+        if (req.body.lastName) req.body.lastName = req.body.lastName.trim();
+        if (req.body.email) req.body.email = req.body.email.trim();
+        if (req.body.organizationName) req.body.organizationName = req.body.organizationName.trim();
 
-        const keysToValidate = {}
+        const keysToValidate = {};
         Object.keys(schemas).forEach((key) => {
-            if (validateAllFields) {
-                keysToValidate[key] = req.body[key] !== undefined ? schemas[key].required() : schemas[key]
-            } else {
-                if (req.body[key] !== undefined) {
-                    keysToValidate[key] = schemas[key]
-                }
+            if (validateAllFields || fieldsToValidate.includes(key)) {
+                keysToValidate[key] = req.body[key] !== undefined ? schemas[key].required() : schemas[key];
+            } else if (req.body[key] !== undefined) {
+                keysToValidate[key] = schemas[key];
             }
-        })
+        });
 
         const schema = joiValidator.object(keysToValidate);
         const { error } = schema.validate(req.body);
@@ -105,4 +139,37 @@ const staffEntryValidator = (validateAllFields = false) => {
     };
 };
 
-module.exports = staffEntryValidator;
+
+
+
+
+// const staffEntryValidator = (validateAllFields = false) => {
+//     return async (req, res, next) => {
+//         // Trim input fields
+//         req.body.firstName = req.body.firstName ? req.body.firstName.trim() : '';
+//         req.body.lastName = req.body.lastName ? req.body.lastName.trim() : '';
+//         req.body.email = req.body.email ? req.body.email.trim() : '';
+
+//         const keysToValidate = {}
+//         Object.keys(schemas).forEach((key) => {
+//             if (validateAllFields) {
+//                 keysToValidate[key] = req.body[key] !== undefined ? schemas[key].required() : schemas[key]
+//             } else {
+//                 if (req.body[key] !== undefined) {
+//                     keysToValidate[key] = schemas[key]
+//                 }
+//             }
+//         })
+
+//         const schema = joiValidator.object(keysToValidate);
+//         const { error } = schema.validate(req.body);
+
+//         if (error) {
+//             return res.status(400).json({ message: error.details[0].message });
+//         } else {
+//             return next();
+//         }
+//     };
+// };
+
+module.exports = userValidator;

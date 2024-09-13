@@ -1,8 +1,9 @@
 const campaignModel = require("../model/campaignModel")
 const individualModel = require("../model/individualModel")
 const npoModel = require("../model/npoModel")
-const cloudinary=require("../utilis/cloudinary")
+const messageModel=require("../model/messageModel")
 const sendmail=require("../helpers/html")
+const donationModel = require("../model/donationModel")
 
 exports.createCampaignByNpo = async (req, res) => {
     try {
@@ -21,7 +22,7 @@ exports.createCampaignByNpo = async (req, res) => {
        
        
 
-        const newCampaign = new campaignModel({
+        const newCampaign = new campaignModel({ 
             title,
             subtitle,
             story,
@@ -80,7 +81,7 @@ exports.getNpoCampaigns = async (req, res) => {
             return res.status(400).json({ message: `Oops, dear ${user.firstName}, you have not created any campaigns yet` });
         }
         return res.status(200).json({ 
-            message: `Here are all campaigns created by ${user.organizationName}`, 
+            message: `Here are all campaigns created by ${user.firstName}`, 
             campaigns: allCampaigns 
         });
     } catch (error) {
@@ -125,3 +126,40 @@ exports.updateNpoCampaign = async (req, res) => {
         return res.status(500).json({ error: `Server error: ${error.message}` });
     }
 };
+
+// exports.NpoManagement=async(req,res)=>{
+//     try {
+//         const {donorId}=req.params
+//         const {campaignId,message}=req.body
+
+//         const donor=await donationModel.findOne({_id:donorId,campaign:campaignId})
+//         if(!donor){
+//             return res.status(404).json({message:`donor not found`})
+//         }
+//         if(donor.campaign.toString()!==campaignId){
+//             return res.status(400).json({info:`hey,no recent donation has been made to your campaign,you can send to your old donors anyways`})
+//         }
+//         let Individualreceiver=donor.npo ?donor.npo:null
+//         let Nporeceiver=donor.individual ?donor.individual:null
+ 
+//         const Npomanagement= new messageModel({
+//             campaign:campaignId,
+//             donor:donorId,
+//             campaignCreator:campaign.npo,
+//             Nporeceiver:Nporeceiver,
+//             Individualreceiver:Individualreceiver,
+//             message
+//         })
+//         await Npomanagement.save()
+//         const donorEmail=donor.email
+//         await sendmail({
+//             email:donorEmail,
+//             subject:"message from the campaign you donated to",
+//             html:`<p>${message}</p>`
+//         })
+//         res.status(200).json({message:`campaign creator successully send message`})
+//     } catch (error) {
+//         console.log(error)
+//         res.status(500).json({message:`can not send message because ${error}`})
+//     }
+// 

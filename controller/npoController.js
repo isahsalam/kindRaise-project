@@ -1,4 +1,4 @@
-
+const individualModel = require("../model/individualModel")
 const npoModel=require("../model/npoModel")
 const cloudinary=require("../utilis/cloudinary")
 const jwt=require("jsonwebtoken")
@@ -32,10 +32,24 @@ exports.NposignUp = async (req, res) => {
 
       
         // Check if user already exists
-        const existingUser = await npoModel.findOne({ email: email.toLowerCase() });
-        if (existingUser) {
-            return res.status(400).json({ message: 'A user with this email already exists.' });
+        // const existingUser = await npoModel.findOne({ email: email.toLowerCase() });
+        // if (existingUser) {
+        //     return res.status(400).json({ message: 'A user with this email already exists.' });
+        // }
+        const existingIndividual = await individualModel.findOne({ email: email.toLowerCase() });
+        const existingNpo = await npoModel.findOne({ email });
+
+        const existingPhoneIndividual = await individualModel.findOne({ phoneNumber });
+        const existingPhoneNpo = await npoModel.findOne({ phoneNumber });
+
+        if (existingIndividual || existingNpo) {
+            return res.status(400).json({ message: 'Email already in use' });
         }
+
+        if (existingPhoneIndividual || existingPhoneNpo) {
+            return res.status(400).json({ message: 'Phone number already in use' });
+        }
+
 
         // Handle file upload
         let profilePicUrl = null;
@@ -60,7 +74,7 @@ exports.NposignUp = async (req, res) => {
             password: hashedPassword,
             phoneNumber,
             organizationName,
-            registrationNumber,
+            registrationNumber:registrationNumber.toUpperCase(),
             profilePic: profilePicUrl,
            
         });
@@ -143,7 +157,7 @@ exports.NpologIn=async(req,res)=>{
         if(!user.isVerified){
             return res.status(400).json({message:`please verify your email first`})
         }
-        const token=jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn:"1h"})
+        const token=jwt.sign({id:user._id,email: user.email, },process.env.JWT_SECRET,{expiresIn:"1h"})
         const{password:_,...userData}=user.toObject()
         return res.status(200).json({
             info:`logged in successful`,
@@ -307,65 +321,7 @@ exports.updateNpo=async(req,res)=>{
 }
 
 
-exports.deleteOneNpo=async(req,res)=>{
-    try {
-        const {id}=req.params
-        
-        if(req.files&&req.files.length>0){
-            const oldFilePath=`uploads.${user.photos}`
-            if(fs.existsSinc(oldFilePath)){
-                fs.unlinkSinc(oldFilePath)
-            }
-        }
-        const userInfo=await npoModel.findByIdAndDelete(id)
-        return res.status(200).json({info:`delete successful`,})
-    } catch (error) {
-        res.status(500).json({info:`${error.message}`})
-    }
-}
 
-exports.deleteAllNpo=async(req,res)=>{
-    try {
-        const allUsers = await npoModel.find()
-        if(allUsers<1){
-            return res.status(400).json({info:`oops!,sorry no user found in database`})
-        }
-         const deleteAllUser=await npoModel.deleteMany({})
-         return res.status(200).json({info:`all ${allUsers.length} users in database deleted successfully`})
-    } catch (error) {
-        return  res.status(500).json({
-              message:`can not delete all user because ${error}`
-          })
-      }  
-}
-
-
-exports.getAllNpo = async (req, res) => {
-    try {
-        const allUsers = await npoModel.find();
-        if(allUsers<=0){
-            return res.status(400).json({info:`oops !! no user found in database`})
-        }
-
-       
-        const everyUsers= allUsers.map(user=>{
-            const token = jwt.sign({ id:user._id }, process.env.JWT_SECRET, { expiresIn: "1 hour" });
-            return {
-                ...user.toObject(),
-                token
-            }
-        })
-
-        return res.status(200).json({
-            info: `All ${allUsers.length} users in the database collected successfully`,
-            users: everyUsers
-        });
-    } catch (error) {
-        return res.status(500).json({
-            message: `Cannot get all users because ${error}`
-        });
-    }
-};
 exports.NpologOut = async (req, res) => { 
     try {
         const auth = req.headers.authorization;
@@ -410,24 +366,3 @@ exports.getOneNpo=async(req,res)=>{
         return res.status(500).json({info:`unable to find ${details.lastName} details because ${error} `})
     }
 } 
-exports.makeAdmin=async(req,res)=>{
-    try {
-        const {id}=req.params
-        const user=await npoModel.findById(id)
-        if(!user){
-            return res.status(400).json({info:`user not found`})
-        }
-        user.isAdmin=true
-        res.status(200).json({info:`congratulations ${user.firstName}, you are now an admin`})
-    } catch (error) {
-        res.status(500).json({message:`unable to make admin because ${error}`})
-    }
-}
-
-exports.NpoAddUsers=async(req,res)=>{
-    try { 
-        
-    } catch (error) {    
-        
-    }
-}
