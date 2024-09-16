@@ -1,4 +1,5 @@
 const campaignModel = require("../model/campaignModel")
+const donationModel=require("../model/donationModel")
 const individualModel = require("../model/individualModel")
 const npoModel = require("../model/npoModel")
 const cloudinary=require("../utilis/cloudinary")
@@ -7,38 +8,54 @@ const sendmail=require("../helpers/html")
 exports.createCampaignByIndividual = async (req, res) => {
     try {
             console.log(req.user)
-        const { title, subtitle, story, Goal  } = req.body;
+        const { title, subtitle, story, Goal,  } = req.body;
         const individualId= req.user.id;
 
-        if (!title || !subtitle || !story || !Goal ) {  
+        if (!title || !subtitle || !story || !Goal  ) {  
             return res.status(400).json({ info: 'All fields are required' });
         }
         const user=await individualModel.findById(individualId)
         if(!user){
             return res.status(404).json({info:`user not found`})
         }
-       
-      
+ 
+        let profilePicsUrl = null
+        if (req.file) {
+            try {
+                const uploadcampaignPhoto=await cloudinary.uploader.upload(req.file.path);
+                 profilePicsUrl=uploadcampaignPhoto.url
+            } catch (error) {
+                return res.status(502).json({error:error.message})
+            }
+            
+        }else{
+            res.status(404).json({message:`profilepics is required`})
+        }
+      const lastDonationDate=new Date()
         const newCampaign = new campaignModel({
             title,
             subtitle,
             story,
             Goal,
-            raised:0,
+            profilePic:profilePicsUrl,
+            totalRaised:0,
+            todaysDonation:0,
+            lastDonationDate:lastDonationDate,
+            status:'active',
             individual: individualId,
         });
-      
-        if(newCampaign.Goal === newCampaign.raised){
-            newCampaign.status="inactive"
-        }
+         
         const savedCampaign = await newCampaign.save();
-       
+        
         return res.status(201).json({message:`campaign created by ${user.firstName}`,data:savedCampaign});
     } catch (error) {
         console.error('Error creating NPO campaign:', error);
         return res.status(500).json({ error: `An error occurred while creating the individual campaign because ${error}` });
     }
 };
+
+
+
 
 exports.getCampaignById = async (req, res) => {
     try {

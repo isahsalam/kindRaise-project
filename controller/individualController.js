@@ -50,7 +50,7 @@ exports.signUp = async (req, res) => {
                 return res.status(500).json({ message: `Image upload failed: ${error.message}` });
             }
         }
-    
+       
        
 
 
@@ -294,19 +294,16 @@ exports.updatedindividual = async (req, res) => {
             lastName: lastName || user.lastName,
         };
 
-        // Check if a new image is being uploaded
+        
         if (req.files && req.files.length > 0) {
-            // Delete the old profile picture if it exists
+            
             const oldFilePath = path.join(__dirname, 'uploads', user.photos);
             if (fs.existsSync(oldFilePath)) {
-                fs.unlinkSync(oldFilePath); // Delete old image
+                fs.unlinkSync(oldFilePath); 
             }
 
-            // Update the photo field with the new filename
-            updatedData.photos = req.files[0].filename; // Assuming req.files[0] contains the new file
+            updatedData.photos = req.files[0].filename; 
         }
-
-        // Perform the update using findByIdAndUpdate
         const updatedUser = await individualModel.findByIdAndUpdate(id, updatedData, { new: true });
 
         res.status(200).json({

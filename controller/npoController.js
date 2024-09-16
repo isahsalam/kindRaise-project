@@ -43,16 +43,16 @@ exports.NposignUp = async (req, res) => {
         const existingPhoneNpo = await npoModel.findOne({ phoneNumber });
 
         if (existingIndividual || existingNpo) {
-            return res.status(400).json({ message: 'Email already in use' });
+            return res.status(400).json({ message: 'this email has already been used,' });
         }
 
         if (existingPhoneIndividual || existingPhoneNpo) {
-            return res.status(400).json({ message: 'Phone number already in use' });
+            return res.status(400).json({ message: 'oops,this phone number cannot be used by more than 1 user,change your phone number and try again' });
         }
 
 
         // Handle file upload
-        let profilePicUrl = null;
+        let profilePicUrl = null; 
         if (req.file) {
             try {
                 const uploadResult = await cloudinary.uploader.upload(req.file.path);

@@ -2,7 +2,7 @@ const npoModel = require("../model/npoModel")
 const individualModel = require("../model/individualModel")
 const campaignModel=require("../model/campaignModel")
 const fs=require("fs")
-//admin deleting single user
+//admin deleting single user 
 exports.deleteByAdmin = async (req, res) => {
     try {
         const { id } = req.params
@@ -28,7 +28,7 @@ exports.deleteByAdmin = async (req, res) => {
         res.status(500).json({ info: `${error.message}` })
     }
 }
-exports.deleteAll = async (req, res) => {
+exports.deleteAllIndividual = async (req, res) => {
     try {
         const allUsers = await individualModel.find()
         if (allUsers < 1) {
@@ -314,32 +314,77 @@ exports.deleteDonationByAdmin = async (req, res) => {
         return res.status(500).json({ error: "Failed to delete donation" });
     }
 };
-exports.deleteCampaignByAdmin = async (req, res) => {
+ 
+
+exports.makeCampaignInactive=async(req,res)=>{
     try {
         const {campaignId}=req.params
-
-        const campaign = await campaignModel.findByIdAndDelete(campaignId);
-        if (!campaign) {
-            return res.status(404).json({ error: "campaign not found" });
+        const campaign=await campaignModel.findById(campaignId)
+        if(!campaign){
+            return res.status(404).json({message:`confirm id and try again user not found`})
         }
-        return res.status(200).json({ message: "campaign deleted successfully" });
+             campaign.status="inactive"
+             await campaign.save()
+          res.status(200).json({message:`campaign deactivated successfully`})
     } catch (error) {
-        return res.status(500).json({ error: "Failed to delete campaign" });
+        res.status(500).json({info:`unable to make campaign inactive because ${error}`})
     }
-};
-exports.deleteCampaignByAdmin = async (req, res) => {
+}
+exports.makeCampaignActive=async(req,res)=>{
     try {
         const {campaignId}=req.params
-
-        const campaign = await campaignModel.findByIdAndDelete(campaignId);
-        if (!campaign) {
-            return res.status(404).json({ error: "campaign not found" });
+        const campaign=await campaignModel.findById(campaignId)
+        if(!campaign){
+            return res.status(404).json({message:`confirm id and try again user not found`})
         }
-        return res.status(200).json({ message: "campaign deleted successfully" });
+             campaign.status="active"
+             await campaign.save()
+          res.status(200).json({message:`campaign activated successfully`})
     } catch (error) {
-        return res.status(500).json({ error: "Failed to delete campaign" });
+        res.status(500).json({info:`unable to make campaign inactive because ${error}`})
     }
-};
+}
 
+exports.getAllCampaign=async(req,res)=>{
+    try{
+        const campaign=await campaignModel.find()
+        if(campaign <1){
+            return res.status(400).json({
+                message:`no campaign created yet`
+            })
+        }
+        res.status(200).json({message:`below are all ${campaign.length} campaigns in your dashboard`,campaign})
 
+    }catch(error){
+res.status(500).json({info:error.message})
+    }
+}
+exports.deleteAllCampaign=async(req,res)=>{
+    try{
+        const campaign=await campaignModel.findMany()
+        if(campaign <1){
+            return res.status(400).json({
+                message:`no campaign created yet`
+            })
+        }
+        res.status(200).json({message:` ${campaign.length} campaigns deleted succesfully in your dashboard`,campaign})
 
+    }catch(error){
+res.status(500).json({info:error.message})
+    }
+}
+exports.deleteCampaignById=async(req,res)=>{
+    try {
+        const {campaignId}= req.params
+        const campaign=await campaignModel.findById(campaignId)
+        if(!campaign){
+            return res.status(404).json({message:`campaign with id not found`})
+        }
+        
+        return res.status(200).json({message:`campaign deleted successfully`,campaign})
+          
+    } catch (error) {
+        
+        return res.status(404).json({error:error.message})
+    }
+}
