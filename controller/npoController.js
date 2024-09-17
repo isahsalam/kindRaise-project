@@ -12,11 +12,11 @@ const {signUpTemplate,verifyTemplate,forgotPasswordTemplate}=require("../helpers
 exports.NposignUp = async (req, res) => {
     try {
         // Destructure fields from the request body
-        const { firstName, lastName, email, password, phoneNumber, organizationName,registrationNumber} = req.body;
-        const allFields= { firstName, lastName, email, password, phoneNumber, organizationName,registrationNumber}
+        const {email, password, phoneNumber, organizationName,registrationNumber} = req.body;
+        const allFields= { email, password, phoneNumber, organizationName,registrationNumber}
 
         // Validate required fields
-        if (!firstName || !lastName || !email || !password ||!organizationName||!registrationNumber||!phoneNumber) {
+        if ( !email || !password ||!organizationName||!registrationNumber||!phoneNumber) {
             const missingFields = [];
     for (const [key, value] of Object.entries(allFields)) {
         if (!value) {
@@ -29,13 +29,6 @@ exports.NposignUp = async (req, res) => {
         message: `The following fields are required: ${missingFields.join(', ')}`
     });
 }
-
-      
-        // Check if user already exists
-        // const existingUser = await npoModel.findOne({ email: email.toLowerCase() });
-        // if (existingUser) {
-        //     return res.status(400).json({ message: 'A user with this email already exists.' });
-        // }
         const existingIndividual = await individualModel.findOne({ email: email.toLowerCase() });
         const existingNpo = await npoModel.findOne({ email });
 
@@ -68,8 +61,8 @@ exports.NposignUp = async (req, res) => {
 
         // Create new user
         const newNpo = new npoModel({
-            firstName,
-            lastName,
+            // firstName,
+            // lastName,
             email: email.toLowerCase(),
             password: hashedPassword,
             phoneNumber,
@@ -77,15 +70,14 @@ exports.NposignUp = async (req, res) => {
             registrationNumber:registrationNumber.toUpperCase(),
             profilePic: profilePicUrl,
            
-        });
+        });  
 
-        // Save user to database
+    
         await newNpo.save();
 
-        // Generate JWT token
         const token = jwt.sign({ id: newNpo._id, email: newNpo.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        // Send verification email
+        
         const verifyLink = `${req.protocol}://${req.get('host')}/api/v1/verify-email/${token}`;
         await sendmail({
             email: newNpo.email,
@@ -93,7 +85,7 @@ exports.NposignUp = async (req, res) => {
             html: signUpTemplate(verifyLink, newNpo.firstName),
         });
 
-        // Respond to client
+        
         const { password: _, ...npoWithoutPassword } = newNpo.toObject();
         res.status(201).json({
             message: `Congratulations, ${newNpo.firstName}! You have successfully signed up. Please check your email to verify your account.`,

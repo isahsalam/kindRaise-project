@@ -1,8 +1,75 @@
 const npoModel = require("../model/npoModel")
 const individualModel = require("../model/individualModel")
 const campaignModel=require("../model/campaignModel")
+const donationModel=require("../model/donationModel")
+const jwt=require("jsonwebtoken")
+require("dotenv").config()
 const fs=require("fs")
+exports.deleteallD = async (req, res) => {
+    try {
+        
+        const deletedDonation= await donationModel.deleteMany();
+
+
+
+        const totalDeleted = deletedDonation.deletedCount
+        if (totalDeleted === 0) {
+            return res.status(200).json({ message: `No users found in the database` });
+        }
+        res.status(200).json({
+            message:`${totalDeleted} users deleted successfully`,
+            deletedDonation:deletedDonation.deletedCount
+            
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+exports.deleteallC = async (req, res) => {
+    try {
+        
+        const campaigns= await campaignModel.deleteMany();
+
+        const totalDeleted = campaigns.deletedCount
+        if (totalDeleted === 0) {
+            return res.status(200).json({ message: `No campaigns found in the database` });
+        }
+        res.status(200).json({
+            message:`${totalDeleted} campaigns deleted successfully`,
+            campaigns:campaigns.deletedCount
+            
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 //admin deleting single user 
+exports.deleteall = async (req, res) => {
+    try {
+        
+        const deletedIndividuals = await individualModel.deleteMany();
+
+        
+        const deletedNpos = await npoModel.deleteMany();
+
+    
+        const totalDeleted = deletedIndividuals.deletedCount + deletedNpos.deletedCount;
+        if (totalDeleted === 0) {
+            return res.status(200).json({ message: `No users found in the database` });
+        }
+
+        
+        res.status(200).json({
+            message: `${totalDeleted} users deleted successfully`,
+            deletedIndividuals: deletedIndividuals.deletedCount,
+            deletedNpos: deletedNpos.deletedCount
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 exports.deleteByAdmin = async (req, res) => {
     try {
         const { id } = req.params

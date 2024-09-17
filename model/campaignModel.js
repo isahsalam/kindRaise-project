@@ -6,7 +6,7 @@ const campaignSchema = new mongoose.Schema({
     Goal: Number,
     profilePic: { type: String,required:true },
     totalRaised:{type:Number,default:0},
-    todaysDonation:{type:Number,default:0},
+    monthlyDonation:{type:Number,default:0},
     lastDonationDate:{type:Date},
     status: {type:String,enum:['active','inactive'],default:'active'},
     isSponsored: Boolean,

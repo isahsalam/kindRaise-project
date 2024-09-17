@@ -17,7 +17,7 @@ const individualSchema = new mongoose.Schema({
   },
   donation:{type:mongoose.Schema.ObjectId,
     ref:"donation"
-  },
+  }, 
   npo:{type:mongoose.Schema.ObjectId,
     ref:"npo"
   }

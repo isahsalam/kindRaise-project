@@ -33,7 +33,7 @@ exports.createCampaignByNpo = async (req, res) => {
           }
 
           const lastDonationDate=new Date()
-          
+
           const newCampaign = new campaignModel({
               title,
               subtitle,
@@ -41,7 +41,7 @@ exports.createCampaignByNpo = async (req, res) => {
               Goal,
               profilePic:profilePicsUrl,
               totalRaised:0,
-              todaysDonation:0,
+              monthlyDonation:0,
               lastDonationDate:lastDonationDate,
               status:'active',
               individual: individualId,

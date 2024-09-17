@@ -4,7 +4,7 @@ const schemas = {
 
     firstName: joiValidator.string().trim()
         .min(3)
-        .required()
+        .optional()
         .pattern(/^[^\s].*[^\s]$/) // Ensures no leading or trailing spaces
         .pattern(/^[A-Za-z]+(?: [A-Za-z]+)*$/) // Ensures only alphabetic characters and allows spaces within
         .messages({
@@ -14,7 +14,7 @@ const schemas = {
     lastName: joiValidator
         .string()
         .regex(/^\S.*\S$/) // Ensures no leading or trailing spaces
-        .required()
+        .optional()
         .messages({
             "string.pattern.base": "Last name cannot have leading or trailing spaces.",
         }),

@@ -39,7 +39,7 @@ exports.createCampaignByIndividual = async (req, res) => {
             Goal,
             profilePic:profilePicsUrl,
             totalRaised:0,
-            todaysDonation:0,
+            monthlyDonation:0,
             lastDonationDate:lastDonationDate,
             status:'active',
             individual: individualId,

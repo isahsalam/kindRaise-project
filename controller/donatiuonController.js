@@ -8,31 +8,6 @@ const sendmail = require("../helpers/nodemailer")
 const { donationTemplate,campaignCreatorTemplate} = require("../helpers/html")
 
 
-
-// const getDonationById = async (req, res) => {
-//   try {
-//     const {donationId}=req.params
-//     const {id}=req.user
-//     if (!mongoose.Types.ObjectId.isValid(donationId)) {
-//         return res.status(400).json({ error: "Invalid donation ID format." });
-//       }
-  
-//     const donation = await donationModel.findById(donationId).populate('campaign');
-//     if (!donation) {
-//       return res.status(404).json({ error: "Donation not found" });
-//     }
-//     // console.log(donation)
-//     console.log(donation.campaign.individual.toString())
-//     console.log(id)
-//     if(donation.campaign.individual.toString() !== id){
-//         return res.status(403).json({message:`oops, sorry you can only view donations made to the campaign you created`})
-//     }
-//     const campaignTitle=donation.campaign? donation.campaign.title:"unknown campaign"
-//     return res.status(200).json({message:`below are  donation donated to ${campaignTitle}`,donation});
-//   } catch (error) {
-//     return res.status(500).json({ error: `Failed to fetch donation${error}` });
-//   }
-// }; 
 const getDonationById = async (req, res) => {
   try {
     const { donationId } = req.params;
@@ -137,22 +112,43 @@ const createDonation = async (req, res) => {
     });
 
     // Save donation to the database
+    // await newDonation.save();
+    
+    // campaign.totalRaised = (campaign.totalRaised || 0) + amount;
+    // campaign.supporters = (campaign.supporters || 0) + 1;
+    
+    //  const today= new Date() 
+    //  today.setHours(0,0,0,0)
+    //  const lastDonationDate= new Date(campaign.lastDonationDate)
+    //      lastDonationDate.setHours(0,0,0,)
+
+    //      if(today.getTime() != lastDonationDate.getTime()){
+    //        campaign.monthlyDonation=0
+    //      }
+
+    //      campaign.monthlyDonation += amount
+    //      campaign.lastDonationDate= new Date()
     await newDonation.save();
-    
-    campaign.totalRaised = (campaign.totalRaised || 0) + amount;
-    campaign.supporters = (campaign.supporters || 0) + 1;
-    
-     const today= new Date() 
-     today.setHours(0,0,0,0)
-     const lastDonationDate= new Date(campaign.lastDonationDate)
-         lastDonationDate.setHours(0,0,0,)
 
-         if(today.getTime() != lastDonationDate.getTime()){
-           campaign.todaysDonation=0
-         }
+campaign.totalRaised = (campaign.totalRaised || 0) + amount;
+campaign.supporters = (campaign.supporters || 0) + 1;
 
-         campaign.todaysDonation += amount
-         campaign.lastDonationDate= new Date()
+const today = new Date();
+const lastDonationDate = new Date(campaign.lastDonationDate);
+
+// Check if the current month and year are different from the last donation month and year
+if (
+  today.getMonth() !== lastDonationDate.getMonth() ||
+  today.getFullYear() !== lastDonationDate.getFullYear()
+) {
+  // If the month or year has changed, reset the monthly donation
+  campaign.monthlyDonation = 0;
+}
+
+// Add the current donation to the monthly total
+campaign.monthlyDonation += amount;
+campaign.lastDonationDate = today;
+
 
     await campaign.save();
      

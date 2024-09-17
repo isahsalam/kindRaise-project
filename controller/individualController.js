@@ -19,12 +19,6 @@ exports.signUp = async (req, res) => {
             return res.status(400).json({ message: 'all details are required.' });
         }
 
-
-        // Check if user already exists
-        // const existingUser = await individualModel.findOne({ email: email.toLowerCase() });
-        // if (existingUser) {
-        //     return res.status(400).json({ message: 'A user with this email already exists.' });
-        // }
         const existingIndividual = await individualModel.findOne({ email: email.toLowerCase() });
         const existingNpo = await npoModel.findOne({ email });
 

@@ -20,6 +20,6 @@ campaignrouter.post("/create-campaign",uploads.single("campaignPic"),authenticat
  campaignrouter.get("/get-campaignbyId/:campaignId",authenticate,checkCampaignStatus,getSingleCampaign)
 campaignrouter.get("/get-NpoallCampaign",authenticate,checkCampaignStatus,getNpoCampaigns)
 campaignrouter.put("/update-campaign/:campaignId",authenticate,checkCampaignStatus,updateNpoCampaign)
-
+ 
 
 module.exports=campaignrouter

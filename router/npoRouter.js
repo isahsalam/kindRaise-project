@@ -4,11 +4,11 @@ const uploads=require("../utilis/multer")
 
 const { NposignUp, NpologIn,updateNpo,NpoverifyEmail,NporesendVerificationEmail,NpoforgetPassword,NporesetPassword, NpochangePassword,NpologOut,getOneNpo}=require("../controller/npoController")
 
-const staffEntryValidator=require("../middleware/validator") 
+const userValidator=require("../middleware/validator") 
 
 const{authenticate,authenticateAdmin}=require("../middleware/auth")
    //onboarding
-router.post("/sign-up",uploads.single ('profilepics'),staffEntryValidator(true),NposignUp)  
+router.post("/sign-up",uploads.single('profilepics'),userValidator(true),NposignUp)  
 router.post("/log-in",NpologIn)
 router.post("/log-out",NpologOut)
 //roles
