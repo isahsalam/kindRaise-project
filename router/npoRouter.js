@@ -20,6 +20,6 @@ router.post("/resend-VerificationEmail",NporesendVerificationEmail)
 router.post("/forget-Password",NpoforgetPassword)
 router.get("/reset-Password/:token",NporesetPassword)
 router.put("/change-Password/:token",userValidator(false,["oldPassword",'ConfirmNewPassword','NewPassword']),NpochangePassword)
-//exports
+//exports 
 module.exports=router 
  

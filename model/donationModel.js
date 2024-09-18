@@ -14,25 +14,25 @@ const donationSchema = new mongoose.Schema({
     required: true
     
 },
-paymentMethod: {
-  type: String,
-  default: 'Kora_pay',
-  required:true
-},
+// paymentMethod: {
+//   type: String,
+//   default: 'Kora_pay',
+//   required:true
+// },
 
   message: {
     type: String,
     required: false
   },
 
-  month: { 
-    type: Date,
+  // month: { 
+  //   type: Date,
 
-  },
-  state: {
-    type: String,
-    required: true
-  },
+  // },
+  // state: {
+  //   type: String,
+  //   required: true
+  // },
   campaign: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Campaign"

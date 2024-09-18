@@ -85,9 +85,9 @@ const getAllDonation = async (req, res) => {
 const createDonation = async (req, res) => {
   try {
     const { campaignId } = req.params;
-    const { amount, name, email, message, state, paymentMethod } = req.body;
+    const { amount, name, email, message,  } = req.body;
 
-    if (!amount || !state || !paymentMethod) {
+    if (!amount || !name || !email) {
       return res.status(400).json({ error: "All fields are required." });
     }
 
@@ -99,20 +99,33 @@ const createDonation = async (req, res) => {
     if (!campaign) {
       return res.status(404).json({ error: "Campaign not found" });
     }
-
+    let newDonation;
+    if(campaign.individual){
     // Create new donation
-    const newDonation = new donationModel({
+     newDonation = new donationModel({
       amount,
       name: name || 'anonymous',
       email,
       message,
-      state,
       campaign: campaignId,
-      paymentMethod,
+      individual: campaign.individual._id
     });
 
    
     await newDonation.save();
+    }
+    if(campaign.npo){
+          // Create new donation
+     newDonation = await donationModel.create({
+      amount,
+      name: name || 'anonymous',
+      email,
+      message,
+      campaign: campaignId,
+      npo: campaign.npo._id
+    });
+    }
+
 
 campaign.totalRaised = (campaign.totalRaised || 0) + amount;
 campaign.supporters = (campaign.supporters || 0) + 1;
@@ -178,37 +191,6 @@ campaign.lastDonationDate = today;
   }
 };
 
- 
-
-// const getAllDonation = async (req, res) => {
-//   try {
-//     const { campaignId } = req.params;  
-//     const { id } = req.user;  
-    
-//     const donations = await donationModel.find({
-//       campaign: campaignId,
-//       individual: id
-//     }).populate("campaign");
-    
-//     if (!donations || donations.length === 0) {
-//       return res.status(404).json({ error: "No donations found for this campaign" });
-//     }
-
-//     const campaign = await campaignModel.findById(campaignId);
-//     if (campaign.individual.toString() !== id) {
-//       return res.status(403).json({ message: `Sorry, you can only view donations made to the campaign you created` });
-//     }
-
-//     return res.status(200).json({
-//       message: `Here are the ${donations.length} donations made to the campaign titled '${campaign.title}'`,
-//       donations
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ error: `Failed to get all donations because: ${error.message}` });
-//   }
-// };
-
 const NpoManagement = async (req, res) => {
     try {
       const { donorId } = req.params;
@@ -263,32 +245,13 @@ const NpoManagement = async (req, res) => {
     }
   };
 
-  // const trackDonationHistory=async(req,res)=>{
-  //   try{
-  //       const userId=req.user
-  //       const donations=await donationModel.find({individual:userId})
-  //       .select("amount name message")
-  //       .populate("campaign", "title")
-  //       .sort({
-  //         createdAt:-1
-  //       })
-  //       if(!donations.length){
-  //         res.status(404).json({message:`no donation history found for ${userId}`})
-  //       }
-  //        res.status(200).json({message:`succesfully get donation history for user ${userId}`,donations})
-  //   }catch(error){
-  //     res.status(500).json({message:error.message})
-  //   }
-
-  // }
-  
-  // 
   const trackDonationHistory = async (req, res) => {
-    const userId = req.user;  // Assuming req.user contains the userId
+    const userId = req.user._id; 
+    console.log(userId) 
     let donations;
 
     try {
-        // Fetch donations made by an individual
+        // 
         donations = await donationModel.find({ individual: userId })
             .select("amount name message")
             .populate("campaign", "title")
@@ -302,22 +265,23 @@ const NpoManagement = async (req, res) => {
             });
         }
 
-        // If no individual donations, check for NPO donations
-        donations = await donationModel.find({ npo: userId })
+        
+        donations = await donationModel.find({
+          npo: userId
+        })
             .select("amount name message")
             .populate("campaign", "title")
             .sort({ createdAt: -1 });
 
-        // If NPO donations exist, return them
-        if (donations.length) {
-            return res.status(200).json({
-                message: `Successfully retrieved donation history for NPO ${userId}`,
-                donations
-            });
+        
+        if (donations.length === 0) {
+        return res.status(404).json({ message: `No donation history found for user ${userId}` });
         }
 
-        // If no donations found
-        return res.status(404).json({ message: `No donation history found for user ${userId}` });
+        return res.status(200).json({
+          message: `Successfully retrieved donation history for user`,
+          donations
+      });
 
     } catch (error) {
         return res.status(500).json({ message: error.message });

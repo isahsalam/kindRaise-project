@@ -25,7 +25,7 @@ exports.authenticate = async (req, res, next) => {
         if(!user){
             return res.status(404).json({message:`oops,seems you are passing the wrong id for either npo or individual`})
         }
-        req.user = decoded;
+        req.user = user;
         next();
     } catch (error) {
         if (error.name === 'JsonWebTokenError') {

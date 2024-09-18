@@ -22,4 +22,4 @@ campaignrouter.get("/get-NpoallCampaign",authenticate,checkCampaignStatus,getNpo
 campaignrouter.put("/update-campaign/:campaignId",authenticate,checkCampaignStatus,updateNpoCampaign)
  
 
-module.exports=campaignrouter
+module.exports=campaignrouter 

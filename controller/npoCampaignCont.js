@@ -8,10 +8,10 @@ const cloudinary=require("../utilis/cloudinary")
 exports.createCampaignByNpo = async (req, res) => {
     try {
             console.log(req.user)
-        const { title, subtitle, story, Goal  } = req.body;
+        const { title, subtitle, story, Goal,endDate  } = req.body;
         const npoId= req.user.id;
 
-        if (!title || !subtitle || !story || !Goal ) {  
+        if (!title || !subtitle || !story || !Goal ||!endDate) {  
             return res.status(400).json({ info: 'All fields are required' });
         }
         const user=await npoModel.findById(npoId)
@@ -19,7 +19,10 @@ exports.createCampaignByNpo = async (req, res) => {
         if(!user){
             return res.status(404).json({info:`user with id not found`})
         }
-       
+            let parsedEndDate=new Date(endDate) 
+            if(isNaN(parsedEndDate.getTime())){
+                return res.status(401).json({info:`invalid date format`})
+            }
         let campaignPhotoUrl=null
           if(req.file){
                try{
@@ -29,8 +32,8 @@ exports.createCampaignByNpo = async (req, res) => {
                  res.status(502).json({info:error.message})
                }
           }else{
-            res.status(400).json({message:`cannot upload photo`})
-          }
+            res.status(400).json({message:`photo is required`})
+          } 
 
           const lastDonationDate=new Date()
 
@@ -38,21 +41,22 @@ exports.createCampaignByNpo = async (req, res) => {
               title,
               subtitle,
               story,
-              Goal,
-              profilePic:profilePicsUrl,
+              Goal, 
+              profilePic:campaignPhotoUrl,
               totalRaised:0,
               monthlyDonation:0,
+              endDate:parsedEndDate,
               lastDonationDate:lastDonationDate,
               status:'active',
-              individual: individualId,
+              npo:npoId,
           });
            
         const savedCampaign = await newCampaign.save();
        
-        return res.status(201).json({message:`campaign created by ${user.firstName}`,data:savedCampaign});
+        return res.status(201).json({message:`campaign created by ${user.organizationName}`,data:savedCampaign});
     } catch (error) {
         console.error('Error creating NPO campaign:', error);
-        return res.status(500).json({ error: `An error occurred while creating the individual campaign because ${error}` });
+        return res.status(500).json({ error: `An error occurred while creating the Npo campaign because ${error}` });
     }
 };
 
@@ -62,7 +66,7 @@ exports.getSingleCampaign = async (req, res) => {
         const npoId=req.user.id
         const campaign = await campaignModel
             .findById(campaignId)
-            .populate('npo', 'organizationName lastName email'); 
+            .populate('npo', 'organizationName '); 
 
         if (!campaign) {
             console.log(campaign)
@@ -87,13 +91,13 @@ exports.getNpoCampaigns = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        const allCampaigns = await campaignModel.find({ 'npo': npoId }).populate('npo','firstName organizationName email' );
+        const allCampaigns = await campaignModel.find({ 'npo': npoId }).populate('npo',' organizationName ' );
        
         if (allCampaigns.length < 1) {
-            return res.status(400).json({ message: `Oops, dear ${user.firstName}, you have not created any campaigns yet` });
+            return res.status(400).json({ message: `Oops, dear ${user.organizationName}, you have not created any campaigns yet` });
         }
         return res.status(200).json({ 
-            message: `Here are all campaigns created by ${user.firstName}`, 
+            message: `Here are all campaigns created by ${user.organizationName}`, 
             campaigns: allCampaigns 
         });
     } catch (error) {

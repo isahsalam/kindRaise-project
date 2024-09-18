@@ -8,5 +8,5 @@ router.get("/getAllDonation/:campaignId",authenticate,getAllDonation)
 router.get("/getDonationById/:donationId",authenticate,getDonationById)
 router.post("/send-message/:donorId",authenticate,NpoManagement)
 
-router.get("/history",trackDonationHistory)
+router.get("/history",authenticate,trackDonationHistory)
 module.exports=router
