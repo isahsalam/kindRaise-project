@@ -12,7 +12,7 @@ adminrouter.delete("/deleteoneIndividual/:id",authenticate,authenticateAdmin,del
 adminrouter.put('/makeadmin/:id',authenticate,authenticateAdmin,makeAdmin)
 adminrouter.delete("/deleteAllIndividual",authenticate,authenticateAdmin,deleteAllIndividual) 
 adminrouter.get("/get-allindividual",authenticate,authenticateAdmin,getAllIndividual) 
-adminrouter.get("/getall-Npo",getAllNpo)  
+adminrouter.get("/getall-Npo",authenticate,authenticateAdmin,getAllNpo)  
 adminrouter.delete("/delete-Npo/:id",authenticate,authenticateAdmin,deleteOneNpo)
 adminrouter.patch("/active/:campaignId",authenticate,authenticateAdmin,makeCampaignActive)
 adminrouter.patch("/inactive/:campaignId",authenticate,authenticateAdmin,makeCampaignInactive)

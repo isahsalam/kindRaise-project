@@ -9,12 +9,12 @@ const { authenticate, authenticateindividual }=require("../middleware/auth")
 const staffEntryValidator = require("../middleware/validator")
 const checkCampaignStatus=require("../middleware/checkStatus.js")
 
-     //individual campaign routes
+     //individual campaign routes 
 campaignrouter.delete("/deletecampaign",deleteCampaign) 
 campaignrouter.post("/createcampaign",uploads.single ('campaignPic'),authenticate,createCampaignByIndividual)
 campaignrouter.get("/getallIndividualcampaigns",authenticate,checkCampaignStatus,getAllIndividualCampaigns)
 campaignrouter.get("/getcampaignbyId/:campaignId",authenticate,checkCampaignStatus,getCampaignById)
-campaignrouter.put("/updatecampaign/:campaignId",authenticate,authenticateindividual,updateIndividualCampaign)
+campaignrouter.put("/updatecampaign/:campaignId",uploads.single ('campaignPic'),authenticate,authenticateindividual,updateIndividualCampaign)
          //npo campaign routes 
 campaignrouter.post("/create-campaign",uploads.single("campaignPic"),authenticate,createCampaignByNpo)
  campaignrouter.get("/get-campaignbyId/:campaignId",authenticate,checkCampaignStatus,getSingleCampaign)

@@ -17,6 +17,17 @@ const campaignSchema = new mongoose.Schema({
     supporters:{type:Number,default:0} 
 }, {timestamps: true});
 
+campaignSchema.virtual('lastDonationMonth').get(function() {
+    if (this.lastDonationDate) {
+        return new Date(this.lastDonationDate).toLocaleString('en-US', { month: 'short' });
+    }
+    return null; 
+});
+
+  
+  campaignSchema.set('toJSON', { virtuals: true });
+  campaignSchema.set('toObject', { virtuals: true });
+
 const CampaignModel = mongoose.model('Campaign', campaignSchema);
 module.exports = CampaignModel;
   

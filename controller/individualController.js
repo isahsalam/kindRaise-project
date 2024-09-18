@@ -80,7 +80,7 @@ exports.signUp = async (req, res) => {
         // Respond to client
         const { password: _, ...individualWithoutPassword } = newUser.toObject();
         res.status(201).json({
-            message: `Congratulations, ${newUser.firstName}! You have successfully signed up as a/an ${newUser.role}. Please check your email to verify your account.`,
+            message: `Congratulations, Kindly verify your email.`,
             data: individualWithoutPassword,
             token, 
         });
@@ -131,8 +131,11 @@ exports.logIn = async (req, res) => {
             return res.status(400).json({ info: `log in must contain email and password` })
         } 
         const lowerCase=email.toLowerCase()
-        const user = await individualModel.findOne({ email :lowerCase})
-
+        let user
+          user = await individualModel.findOne({email:lowerCase})
+            if(!user){
+            user=await npoModel.findOne({email:lowerCase})
+            }
         if (!user) {
             return res.status(401).json({ info: `user with email not found` })
         }
@@ -260,7 +263,7 @@ exports.changePassword = async (req, res) => {
             return res.status(400).json({ message: 'new password and confirm password does not match try again to proceed' })
         }
         const salt = await bcrypt.genSalt(10)
-        const hashed = await bcrypt.hash(NewPassword, salt)
+        const hashed = await bcrypt.hash(NewPassword, salt) 
         user.password = hashed
         await user.save()
 
@@ -272,20 +275,24 @@ exports.changePassword = async (req, res) => {
 }
 
 exports.updatedindividual = async (req, res) => {
-    try {
+    try { 
         const { id } = req.params;
-        const { firstName, lastName } = req.body;
+        const { firstName, lastName,address,city,state,missionStatement} = req.body;
 
         // Find the user by ID
         const user = await individualModel.findById(id);
         if (!user) {
             return res.status(400).json({ info: `User not found, check the ID and try again.` });
         }
-
+ 
         // Update the first name and last name if provided
         const updatedData = {
             firstName: firstName || user.firstName,
             lastName: lastName || user.lastName,
+            address: address || user.address,
+            city:city || user.city,
+            state:state || user.state,
+            missionStatement: missionStatement||user.missionStatement
         };
 
         
@@ -304,6 +311,10 @@ exports.updatedindividual = async (req, res) => {
             message: `User updated successfully`,
             firstName: updatedUser.firstName,
             lastName: updatedUser.lastName,
+            address: updatedUser.address,
+            city: updatedUser.city,
+            state: updatedUser.state,
+            missionStatement:updatedUser.missionStatement,
             photo: updatedUser.photos
         });
     } catch (error) {
@@ -311,7 +322,7 @@ exports.updatedindividual = async (req, res) => {
         res.status(500).json({ message: `Error: ${error.message}` });
     }
 };
-
+   
 exports.logOut = async (req, res) => {
     try {
         const auth = req.headers.authorization;

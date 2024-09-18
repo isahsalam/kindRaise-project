@@ -21,6 +21,8 @@ const fileFilter=(req,file,cb)=>{
 const fileSize={
     limits:1024*1024*10
 }
+
+
 const uploads=multer({
     storage,
     fileFilter,

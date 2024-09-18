@@ -72,7 +72,7 @@ exports.deleteall = async (req, res) => {
 
 exports.deleteByAdmin = async (req, res) => {
     try {
-        const { id } = req.params
+        const { id } = req.params 
         let userInfo
         userInfo = await individualModel.findByIdAndDelete(id)
         if (!userInfo) {

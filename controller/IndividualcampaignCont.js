@@ -57,28 +57,52 @@ exports.createCampaignByIndividual = async (req, res) => {
 
 
 
+// exports.getCampaignById = async (req, res) => {
+//     try {
+//         const { campaignId } = req.params;
+//         const individualId=req.user.id
+//         const campaign = await campaignModel
+//             .findById(campaignId)
+//             .populate('individual', 'firstName lastName email'); 
+
+//         if (!campaign) {
+//             console.log(campaign)
+//             return res.status(404).json({ message: 'Campaign not found' });
+//         }
+//         if(campaign.individual._id.toString()!==individualId){
+//             return res.status(403).json({info:`oops you can only view the campaigns you created`})
+//         }
+
+//         res.status(200).json({ campaign });
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     }
+// };
+
 exports.getCampaignById = async (req, res) => {
     try {
-        const { campaignId } = req.params;
-        const individualId=req.user.id
-        const campaign = await campaignModel
-            .findById(campaignId)
-            .populate('individual', 'firstName lastName email'); 
-
-        if (!campaign) {
-            console.log(campaign)
-            return res.status(404).json({ message: 'Campaign not found' });
-        }
-        if(campaign.individual._id.toString()!==individualId){
-            return res.status(403).json({info:`oops you can only view the campaigns you created`})
-        }
-
-        res.status(200).json({ campaign });
+      const { campaignId } = req.params;
+  
+      const campaign = await campaignModel.findById(campaignId)
+        .populate('individual')
+        .populate('npo');
+  
+      if (!campaign) {
+        return res.status(404).json({ error: "Campaign not found" });
+      }
+  
+      // Add the lastDonationMonth to the campaign object
+      const campaignWithDonationMonth = campaign.toObject();
+      campaignWithDonationMonth.lastDonationMonth = campaign.lastDonationMonth;
+  
+      return res.status(200).json({
+        campaign: campaignWithDonationMonth,
+      });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
-};
-
+  };
+  
 
 exports.getAllIndividualCampaigns = async (req, res) => {
     try {
@@ -103,35 +127,42 @@ exports.getAllIndividualCampaigns = async (req, res) => {
     }
 };
 
-// Controller function to update campaign
 exports.updateIndividualCampaign = async (req, res) => {
     try {
         const { story, subtitle } = req.body;
         const { campaignId } = req.params;
-
         const individualId = req.user.id; 
-        
+
         // Find the campaign by ID
         const campaign = await campaignModel.findById(campaignId);
-        console.log('Campaign Individual ID:', campaign.individual)
         if (!campaign) {
             return res.status(404).json({ info: `Campaign not found` });
         }
+
         const user = await individualModel.findById(individualId);
-        // console.log('Campaign Individual ID:', campaign.individual)
         if (!user) {
-            return res.status(404).json({ info: `user not found` });
-        }
-       
- 
-       // Check if the campaign has an individual reference
-        if (campaign.individual.toString() !== individualId) { 
-            return res.status(403).json({ info: `Unauthorized: You can only update your own campaign/campaigns` });
+            return res.status(404).json({ info: `User not found` });
         }
 
-        // Update the campaign
+        if (campaign.individual.toString() !== individualId) {
+            return res.status(403).json({ info: `Unauthorized: You can only update your own campaign(s)` });
+        }
+
         campaign.story = story || campaign.story; 
         campaign.subtitle = subtitle || campaign.subtitle;
+
+        // Check if the user uploaded a new photo
+        if (req.file) {
+           
+            const cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
+                folder: 'campaigns', 
+                width: 500, 
+                crop: "scale"
+            });
+
+            campaign.profilePic = cloudinaryResult.secure_url;
+        }
+
         await campaign.save();
 
         return res.status(200).json({ message: `Campaign updated successfully ${user.firstName}`, campaign });
@@ -139,6 +170,7 @@ exports.updateIndividualCampaign = async (req, res) => {
         return res.status(500).json({ error: `Server error: ${error.message}` });
     }
 };
+
 
 exports.deleteCampaign=async(req,res)=>{
     try {

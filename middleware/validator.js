@@ -50,7 +50,7 @@ const schemas = {
         .optional()
         .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,50}$/)
         .messages({
-            "string.pattern.base": "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
+            "string.pattern.base": "NewPassword must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
             "string.empty": "Password cannot be empty, must be at least 8 character maximum of 50 characters",
         }), 
         ConfirmNewPassword: joiValidator
@@ -60,7 +60,7 @@ const schemas = {
         .optional()
         .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,50}$/)
         .messages({
-            "string.pattern.base": "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
+            "string.pattern.base": "ConfirmNewPassword must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
             "string.empty": "Password cannot be empty, must be at least 8 character maximum of 50 characters",
         }), 
     phoneNumber: joiValidator
@@ -80,12 +80,7 @@ const schemas = {
             'string.pattern.base': 'organizationName name must not start or end with  spaces and should contain only letters.',
             'string.min': 'organizationName name must be at least 3 characters long.',
         }),
-    // registrationNumber: joiValidator
-    //     .string()
-    //     .optional()
-    //     .regex(/^[A-Z0-9]{6,10}$/
-    //     ),
-    
+
         name: joiValidator.string().trim()
         .min(3)
         .optional()
@@ -118,6 +113,35 @@ const schemas = {
 };
 
 
+// const userValidator = (validateAllFields = false, fieldsToValidate = []) => {
+//     return async (req, res, next) => {
+//        // Only trim fields that exist in the request body
+//         if (req.body.firstName) req.body.firstName = req.body.firstName.trim();
+//         if (req.body.lastName) req.body.lastName = req.body.lastName.trim();
+//         if (req.body.email) req.body.email = req.body.email.trim();
+//         if (req.body.organizationName) req.body.organizationName = req.body.organizationName.trim();
+
+//         const keysToValidate = {};
+//         Object.keys(schemas).forEach((key) => {
+//             if (validateAllFields || fieldsToValidate.includes(key)) {
+//                 keysToValidate[key] = req.body[key] !== undefined ? schemas[key].required() : schemas[key];
+//             } else if (req.body[key] !== undefined) {
+//                 keysToValidate[key] = schemas[key];
+//             }
+//         });
+
+//         const {firstName,lastName,email,password,organizationName,ConfirmNewPassword,phoneNumber,story,title,subtitle,oldPassword,NewPassword} = req.body
+//         const schema = joiValidator.object(keysToValidate);
+//         const { error } = schema.validate({firstName,lastName,email,password,organizationName,ConfirmNewPassword,phoneNumber,story,title,subtitle,oldPassword,NewPassword});
+
+//         if (error) {
+//             return res.status(400).json({ message: error.details[0].message });
+//         } else {
+//             return next();
+//         }
+//     };
+// };
+
 const userValidator = (validateAllFields = false, fieldsToValidate = []) => {
     return async (req, res, next) => {
         // Only trim fields that exist in the request body
@@ -126,18 +150,26 @@ const userValidator = (validateAllFields = false, fieldsToValidate = []) => {
         if (req.body.email) req.body.email = req.body.email.trim();
         if (req.body.organizationName) req.body.organizationName = req.body.organizationName.trim();
 
+        // Create a dynamic schema for validation based on the fields in the request body
         const keysToValidate = {};
+
         Object.keys(schemas).forEach((key) => {
-            if (validateAllFields || fieldsToValidate.includes(key)) {
-                keysToValidate[key] = req.body[key] !== undefined ? schemas[key].required() : schemas[key];
-            } else if (req.body[key] !== undefined) {
+            if (req.body[key] !== undefined) {
+                // Validate only if the field exists in the request body
                 keysToValidate[key] = schemas[key];
             }
         });
 
-        const {firstName,lastName,email,password,organizationName,ConfirmNewPassword,phoneNumber,story,title,subtitle,oldPassword,NewPassword} = req.body
+        // If specific fields are to be validated, override based on those
+        fieldsToValidate.forEach((key) => {
+            if (schemas[key]) {
+                keysToValidate[key] = schemas[key].required(); // Ensure required fields are checked
+            }
+        });
+
+        // Perform validation only on the fields that exist in the request body
         const schema = joiValidator.object(keysToValidate);
-        const { error } = schema.validate({firstName,lastName,email,password,organizationName,ConfirmNewPassword,phoneNumber,story,title,subtitle,oldPassword,NewPassword});
+        const { error } = schema.validate(req.body, { allowUnknown: true }); // allowUnknown ensures unexpected fields are ignored
 
         if (error) {
             return res.status(400).json({ message: error.details[0].message });
@@ -148,36 +180,5 @@ const userValidator = (validateAllFields = false, fieldsToValidate = []) => {
 };
 
 
-
-
-
-// const staffEntryValidator = (validateAllFields = false) => {
-//     return async (req, res, next) => {
-//         // Trim input fields
-//         req.body.firstName = req.body.firstName ? req.body.firstName.trim() : '';
-//         req.body.lastName = req.body.lastName ? req.body.lastName.trim() : '';
-//         req.body.email = req.body.email ? req.body.email.trim() : '';
-
-//         const keysToValidate = {}
-//         Object.keys(schemas).forEach((key) => {
-//             if (validateAllFields) {
-//                 keysToValidate[key] = req.body[key] !== undefined ? schemas[key].required() : schemas[key]
-//             } else {
-//                 if (req.body[key] !== undefined) {
-//                     keysToValidate[key] = schemas[key]
-//                 }
-//             }
-//         })
-
-//         const schema = joiValidator.object(keysToValidate);
-//         const { error } = schema.validate(req.body);
-
-//         if (error) {
-//             return res.status(400).json({ message: error.details[0].message });
-//         } else {
-//             return next();
-//         }
-//     };
-// };
-
 module.exports = userValidator;
+

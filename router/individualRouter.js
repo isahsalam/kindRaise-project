@@ -27,4 +27,4 @@ router.get("/resetPassword/:token",resetPassword)
 router.put("/changePassword/:token",userValidator(false,["oldPassword",'ConfirmNewPassword','NewPassword']),changePassword)
 
 module.exports=router 
- 
+  

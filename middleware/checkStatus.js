@@ -2,7 +2,7 @@ const campaignModel = require("../model/campaignModel")
 const donationModel=require("../model/donationModel")
 
 const checkCampaignStatus = async (req, res, next) => {
-    try {
+    try { 
         // Find all active campaigns
         const activeCampaigns = await campaignModel.find({ status: 'active' });
 

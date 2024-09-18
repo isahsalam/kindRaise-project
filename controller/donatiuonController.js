@@ -111,23 +111,7 @@ const createDonation = async (req, res) => {
       paymentMethod,
     });
 
-    // Save donation to the database
-    // await newDonation.save();
-    
-    // campaign.totalRaised = (campaign.totalRaised || 0) + amount;
-    // campaign.supporters = (campaign.supporters || 0) + 1;
-    
-    //  const today= new Date() 
-    //  today.setHours(0,0,0,0)
-    //  const lastDonationDate= new Date(campaign.lastDonationDate)
-    //      lastDonationDate.setHours(0,0,0,)
-
-    //      if(today.getTime() != lastDonationDate.getTime()){
-    //        campaign.monthlyDonation=0
-    //      }
-
-    //      campaign.monthlyDonation += amount
-    //      campaign.lastDonationDate= new Date()
+   
     await newDonation.save();
 
 campaign.totalRaised = (campaign.totalRaised || 0) + amount;

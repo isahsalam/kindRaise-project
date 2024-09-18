@@ -88,7 +88,7 @@ exports.NposignUp = async (req, res) => {
         
         const { password: _, ...npoWithoutPassword } = newNpo.toObject();
         res.status(201).json({
-            message: `Congratulations, ${newNpo.firstName}! You have successfully signed up. Please check your email to verify your account.`,
+            message: `Congratulations, Kindly verify your email`,
             data: npoWithoutPassword,
             token,
         });
@@ -121,7 +121,7 @@ exports.NpoverifyEmail=async(req,res)=>{
              }
              user.isVerified=true
              await user.save()
-             res.status(200).json({info:`dear ${user.firstName} your email has successfully been verified`})
+             res.status(200).json({info:` email successfully verified`})
     } catch (error) {
         if(error instanceof jwt.JsonWebTokenError){
             return res.status(500).json({info:`unable to verify because ${error}`})
@@ -129,37 +129,7 @@ exports.NpoverifyEmail=async(req,res)=>{
         res.status(500).json({info:`unable to verify because ${error}`})
     }
 }
-exports.NpologIn=async(req,res)=>{
-    try {
-        const{email,password}=req.body
-        if(!email ||!password){
-            return res.status(400).json({info:`log in must contain email and password`})
-        }
-         const lowerCase=email.toLowerCase()
-        const user = await npoModel.findOne({ email :lowerCase})
-        
-        if(!user ){
-            return res.status(401).json({info:`user with email not found`})
-        }
-        const verifyPassword=await bcrypt.compare(password,user.password)
-        
-        if(!verifyPassword){
-            return res.status(400).json({info:`incorrect password`})
-        }
-        if(!user.isVerified){
-            return res.status(400).json({message:`please verify your email first`})
-        }
-        const token=jwt.sign({id:user._id,email: user.email, },process.env.JWT_SECRET,{expiresIn:"1h"})
-        const{password:_,...userData}=user.toObject()
-        return res.status(200).json({
-            info:`logged in successful`,
-            data:userData,
-             token})
-    } catch (error) {
-        res.status(500).json({info:`cannot log in because ${error}`})
-    }
-}
-//if token expired and user want to receive another verification message
+
 exports.NporesendVerificationEmail=async (req,res)=>{
     try {
        const {email}=req.body
@@ -277,38 +247,45 @@ res.status(500).json({info:`unable to change password because ${error}`})
     }
 }
 
-exports.updateNpo = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { firstName, lastName } = req.body
 
+
+exports.updateNpo = async (req, res) => {
+    try { 
+        const { id } = req.params;
+        const {address,city,state,missionStatement} = req.body;
+
+        // Find the user by ID
         const user = await npoModel.findById(id);
         if (!user) {
             return res.status(400).json({ info: `User not found, check the ID and try again.` });
         }
-
+ 
+        // Update the first name and last name if provided
         const updatedData = {
-            firstName: firstName || user.firstName,
-            lastName: lastName || user.lastName,
+            address: address || user.address,
+            city:city || user.city,
+            state:state || user.state,
+            missionStatement: missionStatement||user.missionStatement
         };
 
-    
+        
         if (req.files && req.files.length > 0) {
-            // Delete the old profile picture if it exists
+            
             const oldFilePath = path.join(__dirname, 'uploads', user.photos);
             if (fs.existsSync(oldFilePath)) {
-                fs.unlinkSync(oldFilePath); // Delete old image
+                fs.unlinkSync(oldFilePath); 
             }
 
-            
             updatedData.photos = req.files[0].filename; 
         }
         const updatedUser = await npoModel.findByIdAndUpdate(id, updatedData, { new: true });
 
         res.status(200).json({
             message: `User updated successfully`,
-            firstName: updatedUser.firstName,
-            lastName: updatedUser.lastName,
+            address: updatedUser.address,
+            city: updatedUser.city,
+            state: updatedUser.state,
+            missionStatement:updatedUser.missionStatement,
             photo: updatedUser.photos
         });
     } catch (error) {
