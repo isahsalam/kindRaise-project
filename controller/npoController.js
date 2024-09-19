@@ -269,7 +269,7 @@ exports.updateNpo = async (req, res) => {
         };
 
         
-        if (req.files && req.files.length > 0) {
+        if (req.files && req.files.length > 0) { 
             
             const oldFilePath = path.join(__dirname, 'uploads', user.photos);
             if (fs.existsSync(oldFilePath)) {

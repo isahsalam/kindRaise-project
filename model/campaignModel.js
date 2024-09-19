@@ -36,12 +36,12 @@
 
 const mongoose = require('mongoose');
 const campaignSchema = new mongoose.Schema({
-    title: { type: String, required: true }, // Set required
+    title: { type: String, required: true }, 
     subtitle: String,
     story: String,
-    Goal: { type: Number, required: true }, // Set required
-    ev: { type: Number, default: 0 },
-    endDate: { type: Date, default: () => Date.now(), required: true }, // Use function for dynamic default
+    Goal: { type: Number, required: true }, 
+    ev: { type: Number,default:0},
+    endDate: { type: Date, default: () => Date.now(), required: true }, 
     profilePic: { type: String, required: true },
     totalRaised: { type: Number, default: 0 },
     monthlyDonation: { type: Number, default: 0 },
@@ -51,7 +51,7 @@ const campaignSchema = new mongoose.Schema({
     sponsoredAt: Date,
     individual: { type: mongoose.Schema.Types.ObjectId, ref: 'individual' },
     npo: { type: mongoose.Schema.Types.ObjectId, ref: 'npo' },
-    donations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'donation' }], // Change to array for multiple donations
+    donations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'donation' }], 
     supporters: { type: Number, default: 0 }
 }, { timestamps: true });
 

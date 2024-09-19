@@ -1,59 +1,83 @@
 const campaignModel = require("../model/campaignModel")
 const individualModel = require("../model/individualModel")
 const npoModel = require("../model/npoModel")
+
+const fs = require('fs');
+const path = require('path');
+
 const messageModel=require("../model/messageModel")
 const sendmail=require("../helpers/html")
 const donationModel = require("../model/donationModel")
 const cloudinary=require("../utilis/cloudinary")
+const twoYearsFromNow = new Date();
+twoYearsFromNow.setFullYear(twoYearsFromNow.getFullYear() + 2);
+
+
 exports.createCampaignByNpo = async (req, res) => {
     try {
-            console.log(req.user)
-        const { title, subtitle, story, Goal,endDate  } = req.body;
-        const npoId= req.user.id;
+        const { title, subtitle, story, Goal, endDate } = req.body;
+        const npoId = req.user.id;
 
-        if (!title || !subtitle || !story || !Goal ||!endDate) {  
+        if (!title || !subtitle || !story || !Goal || !endDate) {
             return res.status(400).json({ info: 'All fields are required' });
         }
-        const user=await npoModel.findById(npoId)
-         
-        if(!user){
-            return res.status(404).json({info:`user with id not found`})
+
+        // Check if the NPO already has 5 campaigns
+        const campaignCount = await campaignModel.countDocuments({ npo: npoId });
+        if (campaignCount >= 5) {
+            return res.status(403).json({ info: `You have reached the limit of 5 active campaigns` });
         }
-            let parsedEndDate=new Date(endDate) 
-            if(isNaN(parsedEndDate.getTime())){
-                return res.status(401).json({info:`invalid date format`})
+
+        const user = await npoModel.findById(npoId);
+        if (!user) {
+            return res.status(404).json({ info: `User with id not found` });
+        }
+
+        let parsedEndDate = new Date(endDate);
+        if (isNaN(parsedEndDate.getTime())) {
+            return res.status(401).json({ info: `Invalid date format` });
+        }
+
+        let campaignPhotoUrl = null;
+        if (req.file) {
+            try {
+                const uploadPhoto = await cloudinary.uploader.upload(req.file.path);
+                campaignPhotoUrl = uploadPhoto.url;
+            } catch (error) {
+                return res.status(502).json({ info: error.message });
             }
-        let campaignPhotoUrl=null
-          if(req.file){
-               try{
-                const uploadPhoto=await cloudinary.uploader.upload(req.file.path)
-                campaignPhotoUrl=uploadPhoto.url             
-               }catch(error){
-                 res.status(502).json({info:error.message})
-               }
-          }else{
-            res.status(400).json({message:`photo is required`})
-          } 
+        } else {
+            return res.status(400).json({ message: `Photo is required` });
+        }
 
-          const lastDonationDate=new Date()
+        const lastDonationDate = new Date();
 
-          const newCampaign = new campaignModel({
-              title,
-              subtitle,
-              story,
-              Goal, 
-              profilePic:campaignPhotoUrl,
-              totalRaised:0,
-              monthlyDonation:0,
-              endDate:parsedEndDate,
-              lastDonationDate:lastDonationDate,
-              status:'active',
-              npo:npoId,
-          });
-           
+        // Validate that the end date is in the future
+        if (parsedEndDate <= Date.now()) {
+            return res.status(400).json({ info: `Oops, your end date should be in the future` });
+        }
+
+        // Validate that the end date is within 2 years from now
+        if (parsedEndDate > twoYearsFromNow) {
+            return res.status(400).json({ info: `End date cannot be more than 2 years from today` });
+        }
+
+        const newCampaign = new campaignModel({
+            title,
+            subtitle,
+            story,
+            Goal,
+            profilePic: campaignPhotoUrl,
+            totalRaised: 0,
+            monthlyDonation: 0,
+            endDate: parsedEndDate,
+            lastDonationDate,
+            status: 'active',
+            npo: npoId,
+        });
+
         const savedCampaign = await newCampaign.save();
-       
-        return res.status(201).json({message:`campaign created by ${user.organizationName}`,data:savedCampaign});
+        return res.status(201).json({ message: `Campaign created by ${user.organizationName}`, data: savedCampaign });
     } catch (error) {
         console.error('Error creating NPO campaign:', error);
         return res.status(500).json({ error: `An error occurred while creating the Npo campaign because ${error}` });
@@ -108,40 +132,47 @@ exports.getNpoCampaigns = async (req, res) => {
 // Controller function to update campaign
 exports.updateNpoCampaign = async (req, res) => {
     try {
-        const { story, subtitle,title } = req.body;
+        const {story, subtitle } = req.body;
         const { campaignId } = req.params;
-
         const npoId = req.user.id; 
-        
+
         // Find the campaign by ID
         const campaign = await campaignModel.findById(campaignId);
-        console.log('Campaign Npo ID:', campaign.npo)
         if (!campaign) {
             return res.status(404).json({ info: `Campaign not found` });
         }
+
         const user = await npoModel.findById(npoId);
-        // console.log('Campaign Individual ID:', campaign.individual)
         if (!user) {
-            return res.status(404).json({ info: `user not found` });
-        }
-       
- 
-       // Check if the campaign has an individual reference
-        if (campaign.npo.toString() !== npoId) { 
-            return res.status(403).json({ info: `Unauthorized: You can only update your own campaign/campaigns` });
+            return res.status(404).json({ info: `User not found` });
         }
 
-        // Update the campaign
-        campaign.title=title || campaign.title
+        if (!campaign.npo || campaign.npo.toString() !== npoId) {
+            return res.status(403).json({ info: `Unauthorized: You can only update your own campaign(s)` });
+        }
+
         campaign.story = story || campaign.story; 
         campaign.subtitle = subtitle || campaign.subtitle;
+        
+
+        if (req.file && req.file.length > 0) { 
+             
+            const oldFilePath = path.join(__dirname, 'uploads', user.photos);
+            if (fs.existsSync(oldFilePath)) {
+                fs.unlinkSync(oldFilePath); 
+            }
+
+            updatedData.photos = req.files[0].filename; 
+        }
+
         await campaign.save();
 
-        return res.status(200).json({ message: `Campaign updated successfully ${user.firstName}`, campaign });
+        return res.status(200).json({ message: `Campaign updated successfully by ${user.organizationName}`, campaign });
     } catch (error) {
         return res.status(500).json({ error: `Server error: ${error.message}` });
     }
 };
+
 
 
 exports.NpoManagement=async(req,res)=>{

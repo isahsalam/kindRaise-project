@@ -4,9 +4,8 @@ const uploads=require("../utilis/multer.js")
 
 const { signUp, logIn,updatedindividual,verifyEmail,resendVerificationEmail,forgetPassword,resetPassword, changePassword,logOut,getOne}=require("../controller/individualController"); 
 
-const userValidator=require("../middleware/validator") 
-const checkCampaignStatus=require("../middleware/checkStatus.js")
-const{authenticate,authenticateAdmin,authenticateindividual}=require("../middleware/auth");
+const userValidator=require("../middleware/validator")
+const{authenticate}=require("../middleware/auth");
 
 
    //onboarding
