@@ -76,6 +76,10 @@ exports.createCampaignByNpo = async (req, res) => {
             status: 'active',
             npo: npoId,
         });
+        await npoModel.findByIdAndUpdate(npoId, {
+            $push: { campaigns: newCampaign._id },
+            $inc: { totalRaised: newCampaign.totalRaised }
+          });
 
         const savedCampaign = await newCampaign.save();
         return res.status(201).json({ message: `Campaign created by ${user.organizationName}`, data: savedCampaign });
@@ -221,7 +225,7 @@ exports.getNpoCampaigns = async (req, res) => {
           { month: "Mar", amount: 0 },
           { month: "Apr", amount: 0 },
           { month: "May", amount: 0 },
-          { month: "Jun", amount: 0 },
+          { month: "Jun", amount: 0 }, 
           { month: "Jul", amount: 0 },
           { month: "Aug", amount: 0 },
           { month: "Sep", amount: 0 },
@@ -241,7 +245,7 @@ exports.getNpoCampaigns = async (req, res) => {
             months[monthIndex].amount += donation.amount;
           }
         });
-  
+   
         return months;
       };
   
@@ -250,7 +254,7 @@ exports.getNpoCampaigns = async (req, res) => {
       return res.status(200).json({
         message: `Here are all campaigns created by ${user.organizationName}`,
         allCampaigns,
-        totalRaisedFromAllCampaigns, 
+        totalRaisedFromAllCampaigns: Number(totalRaisedFromAllCampaigns), 
         monthlyDonations
       });
     } catch (error) {
