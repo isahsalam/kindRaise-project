@@ -186,72 +186,75 @@ exports.NpoManagement=async(req,res)=>{
     }
 }
 
-
 exports.getNpoCampaigns = async (req, res) => {
     try {
-        const npoId = req.user.id; 
-
-        // Find the NPO user
-        const user = await npoModel.findById(npoId);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Fetch campaigns created by this NPO, sorted by 'createdAt' in descending order
-        const allCampaigns = await campaignModel.find({ 'npo': npoId })
-            .populate('npo', 'organizationName')
-            .populate({path:'donations', select:'amount createdAt'})  // Make sure to include 'createdAt' for date sorting
-            .sort({ createdAt: -1 });
-
-        if (allCampaigns.length < 1) {
-            return res.status(400).json({ message: `Oops, dear ${user.organizationName}, you have not created any campaigns yet` });
-        }
-
-        // Fetch donations related to these campaigns
-        const campaignIds = allCampaigns.map(campaign => campaign._id);
-        const donations = await donationModel.find({ campaign: { $in: campaignIds } });
-
-        // Helper function to calculate monthly donations from new donations
-const getMonthlyDonations = (donations) => {
-    // Initialize an array with months and set the default amount to 0
-    const months = [
-        {month: "Jan", amount: 0},
-        {month: "Feb", amount: 0},
-        {month: "Mar", amount: 0},
-        {month: "Apr", amount: 0}, 
-        {month: "May", amount: 0}, 
-        {month: "Jun", amount: 0},
-        {month: "Jul", amount: 0},
-        {month: "Aug", amount: 0},
-        {month: "Sep", amount: 0},
-        {month: "Oct", amount: 0},
-        {month: "Nov", amount: 0},
-        {month: "Dec", amount: 0},
-    ];
-
-    // Iterate through new donations and update the monthly amounts
-    donations.forEach(donation => {
-        // Extract the month of the donation
-        const donationMonth = new Date(donation.createdAt).toLocaleString('default', { month: 'short' });
-
-        // Find 
-        const monthIndex = months.findIndex(month => month.month === donationMonth);
-
-        if (monthIndex !== -1) {
+      const npoId = req.user.id; 
+  
+      // Find the NPO user
+      const user = await npoModel.findById(npoId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      
+      const allCampaigns = await campaignModel.find({ 'npo': npoId })
+        .populate('npo', 'organizationName')
+        .populate({ path: 'donations', select: 'amount createdAt' }) 
+        .sort({ createdAt: -1 });
+  
+      if (allCampaigns.length < 1) {
+        return res.status(400).json({ message: `Oops, dear ${user.organizationName}, you have not created any campaigns yet` });
+      }
+  
+      
+      const totalRaisedFromAllCampaigns = allCampaigns.reduce((total, campaign) => total + (campaign.totalRaised || 0), 0);
+  
+      
+      const campaignIds = allCampaigns.map(campaign => campaign._id);
+      const donations = await donationModel.find({ campaign: { $in: campaignIds } });
+  
+      const getMonthlyDonations = (donations) => {
+    
+        const months = [
+          { month: "Jan", amount: 0 },
+          { month: "Feb", amount: 0 },
+          { month: "Mar", amount: 0 },
+          { month: "Apr", amount: 0 },
+          { month: "May", amount: 0 },
+          { month: "Jun", amount: 0 },
+          { month: "Jul", amount: 0 },
+          { month: "Aug", amount: 0 },
+          { month: "Sep", amount: 0 },
+          { month: "Oct", amount: 0 },
+          { month: "Nov", amount: 0 },
+          { month: "Dec", amount: 0 },
+        ];
+  
+        
+        donations.forEach(donation => {
+          
+          const donationMonth = new Date(donation.createdAt).toLocaleString('default', { month: 'short' });
+  
+          
+          const monthIndex = months.findIndex(month => month.month === donationMonth);
+          if (monthIndex !== -1) {
             months[monthIndex].amount += donation.amount;
-        }
-    }); 
-
-    return months;
-};
-        const monthlyDonations = getMonthlyDonations(donations);
-
-        return res.status(200).json({
-            message: `Here are all campaigns created by ${user.organizationName}`,
-            allCampaigns,
-            monthlyDonations
+          }
         });
+  
+        return months;
+      };
+  
+      const monthlyDonations = getMonthlyDonations(donations);
+  
+      return res.status(200).json({
+        message: `Here are all campaigns created by ${user.organizationName}`,
+        allCampaigns,
+        totalRaisedFromAllCampaigns, 
+        monthlyDonations
+      });
     } catch (error) {
-        return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
-};
+  };
+  

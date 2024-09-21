@@ -175,7 +175,7 @@ const createDonation = async (req, res) => {
     console.error('Error creating donation or sending email:', error);
     return res.status(500).json({ error: `Failed to create donation: ${error.message}` });
   }
-};
+}; 
 
 
 const NpoManagement = async (req, res) => {
@@ -274,6 +274,7 @@ const trackDonationHistory = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
