@@ -78,7 +78,7 @@ exports.NposignUp = async (req, res) => {
         const token = jwt.sign({ id: newNpo._id, email: newNpo.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         
-        const verifyLink = `https://kindraise.onrender.com/ap/v1/verify-email/${token}`;
+        const verifyLink = `https://kindraise.onrender.com/api/v1/verify-email/${token}`;
         await sendmail({
             email: newNpo.email,
             subject: 'Verify Your Email',
