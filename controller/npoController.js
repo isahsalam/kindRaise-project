@@ -78,7 +78,7 @@ exports.NposignUp = async (req, res) => {
         const token = jwt.sign({ id: newNpo._id, email: newNpo.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         
-        const verifyLink = `${req.protocol}://${req.get('host')}/api/v1/verify-email/${token}`;
+        const verifyLink = `https://kindraise.vercel.app/#/verify-email${token}`;
         await sendmail({
             email: newNpo.email,
             subject: 'Verify Your Email',
@@ -122,7 +122,7 @@ exports.NpoverifyEmail=async(req,res)=>{
              }
              user.isVerified=true
              await user.save()
-             return res.redirect('https:kindraise.vercel.app/login')
+             return res.status(200).json({message:`verified successfully`})
     } catch (error) {
         if(error instanceof jwt.JsonWebTokenError){
             return res.status(500).json({info:`unable to verify because ${error}`})
