@@ -82,120 +82,10 @@ const getAllDonation = async (req, res) => {
 
 
 
-// const createDonation = async (req, res) => {
-//   try {
-//     const { campaignId } = req.params;
-//     const { amount, name, email, message, } = req.body;
-
-//     if (!amount || !name || !email) {
-//       return res.status(400).json({ error: "All fields are required." });
-//     }
-
-//     // Find the campaign by ID and populate the references
-//     const campaign = await campaignModel.findById(campaignId)
-//       .populate('individual')
-//       .populate('npo');
-
-//     if (!campaign) {
-//       return res.status(404).json({ error: "Campaign not found" });
-//     }
-//     let newDonation;
-//     if (campaign.individual) {
-//       // Create new donation
-//       newDonation = new donationModel({
-//         amount,
-//         name: name || 'anonymous',
-//         email,
-//         message,
-//         campaign: campaignId,
-//         individual: campaign.individual._id
-//       });
-
-
-//       await newDonation.save();
-//     }
-//     if (campaign.npo) {
-//       // Create new donation
-//       newDonation = await donationModel.create({
-//         amount,
-//         name: name || 'anonymous',
-//         email,
-//         message,
-//         campaign: campaignId,
-//         npo: campaign.npo._id,
-//         donations: req.user.id
-//       });
-//     }
-    
-//     campaign.donations.push(newDonation._id);
-//     campaign.totalRaised = (campaign.totalRaised || 0) + amount;
-//     campaign.supporters = (campaign.supporters || 0) + 1;
-
-//     const today = new Date();
-//     const lastDonationDate = new Date(campaign.lastDonationDate);
-
-//     // Check if the current month and year are different from the last donation month and year
-//     if (
-//       today.getMonth() !== lastDonationDate.getMonth() ||
-//       today.getFullYear() !== lastDonationDate.getFullYear()
-//     ) {
-//       // If the month or year has changed, reset the monthly donation
-//       campaign.monthlyDonation = 0;
-//     }
-
-//     // Add the current donation to the monthly total
-//     campaign.monthlyDonation += amount;
-//     campaign.lastDonationDate = today;
-
-
-//     await campaign.save();
-
-
-//     const donationLink = `${req.protocol}://${req.get('host')}/api/v1/campaign/${campaignId}`;
-//     const campaignCreatorLink = `${req.protocol}://${req.get('host')}/api/v1/campaign/${campaignId}`;
-
-//     // Send email to the donor
-//     await sendmail({
-//       email: newDonation.email,
-//       subject: 'Thank You for Your Donation!',
-//       html: donationTemplate(newDonation.name, amount, campaign.title, new Date().toLocaleDateString(), campaignId, donationLink),
-//     });
-
-//     // Determine campaign creator email
-//     let campaignCreatorEmail = '';
-//     if (campaign.individual) {
-//       campaignCreatorEmail = campaign.individual.email;
-//     } else if (campaign.npo) {
-//       campaignCreatorEmail = campaign.npo.email;
-//     }
-
-//     // Check and send email to the campaign creator
-//     if (campaignCreatorEmail) {
-//       await sendmail({
-//         email: campaignCreatorEmail,
-//         subject: 'DONATION ALERT!',
-//         html: campaignCreatorTemplate(campaignCreatorLink),
-//       });
-//     } else {
-//       console.error('No email address found for the campaign creator');
-//     }
-
-//     // Respond with a success message
-//     return res.status(201).json({
-//       message: `Dear ${newDonation.name}, thank you for your donation of ₦${newDonation.amount} to the ${campaign.title} campaign!`,
-//       newDonation
-//     });
-
-//   } catch (error) {
-//     console.error('Error creating donation or sending email:', error);
-//     return res.status(500).json({ error: `Failed to create donation: ${error.message}` });
-//   }
-// };
-
 const createDonation = async (req, res) => {
   try {
     const { campaignId } = req.params;
-    const { amount, name, email, message } = req.body;
+    const { amount, name, email, message ,campaignName} = req.body;
 
     if (!amount || !name || !email) {
       return res.status(400).json({ error: "All fields are required." });
@@ -219,6 +109,7 @@ const createDonation = async (req, res) => {
         name: name || 'anonymous',
         email,
         message,
+        campaignName,
         campaign: campaignId,
         individual: campaign.individual._id
       });
@@ -228,6 +119,7 @@ const createDonation = async (req, res) => {
         name: name || 'anonymous',
         email,
         message,
+        campaignName:campaign.title,
         campaign: campaignId,
         npo: campaign.npo._id
       });
@@ -348,7 +240,7 @@ const trackDonationHistory = async (req, res) => {
   try {
     // 
     donations = await donationModel.find({ individual: userId })
-      .select("amount name message")
+      .select("amount name message email")
       .populate("campaign", "title")
       .sort({ createdAt: -1 });
 
@@ -364,7 +256,7 @@ const trackDonationHistory = async (req, res) => {
     donations = await donationModel.find({
       npo: userId
     })
-      .select("amount name message")
+      .select("amount name message email")
       .populate("campaign", "title")
       .sort({ createdAt: -1 });
 

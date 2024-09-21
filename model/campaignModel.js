@@ -32,7 +32,7 @@
 
 // const CampaignModel = mongoose.model('Campaign', campaignSchema);
 // module.exports = CampaignModel;
-  
+   
 
 const mongoose = require('mongoose');
 const campaignSchema = new mongoose.Schema({
@@ -43,7 +43,7 @@ const campaignSchema = new mongoose.Schema({
     ev: { type: Number,required:false,default:0},
     endDate: { type: Date, default: () => Date.now(), required: true }, 
     profilePic: { type: String, required: true },
-    totalRaised: { type: Number, default: 0 },
+    totalRaised: { type: Number, default: 0 },                           
     monthlyDonation: { type: Number, default: 0 },
     lastDonationDate: { type: Date },
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },

@@ -24,8 +24,8 @@ exports.createCampaignByNpo = async (req, res) => {
 
         // Check if the NPO already has 5 campaigns
         const campaignCount = await campaignModel.countDocuments({ npo: npoId });
-        if (campaignCount >= 5) {
-            return res.status(403).json({ info: `You have reached the limit of 5 active campaigns` });
+        if (campaignCount >= 20) {
+            return res.status(403).json({ info: `You have reached the limit of 20 active campaigns` });
         }
 
         const user = await npoModel.findById(npoId);
