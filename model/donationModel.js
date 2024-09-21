@@ -42,3 +42,6 @@ const donationSchema = new mongoose.Schema({
 
 const donationModel = mongoose.model('donation', donationSchema);
 module.exports = donationModel;
+
+
+

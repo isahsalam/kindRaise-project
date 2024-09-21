@@ -43,7 +43,7 @@ exports.NposignUp = async (req, res) => {
             return res.status(400).json({ message: 'oops,this phone number cannot be used by more than 1 user,change your phone number and try again' });
         }
 
-
+ 
         // Handle file upload
         let profilePicUrl = null; 
         if (req.file) {
@@ -82,12 +82,13 @@ exports.NposignUp = async (req, res) => {
         await sendmail({
             email: newNpo.email,
             subject: 'Verify Your Email',
-            html: signUpTemplate(verifyLink, newNpo.firstName),
+            html: signUpTemplate(verifyLink, newNpo.organizationName),
         });
 
         
         const { password: _, ...npoWithoutPassword } = newNpo.toObject();
         res.status(201).json({
+            
             message: `Congratulations, Kindly verify your email`,
             data: npoWithoutPassword,
             token,
@@ -121,7 +122,7 @@ exports.NpoverifyEmail=async(req,res)=>{
              }
              user.isVerified=true
              await user.save()
-             res.status(200).json({info:` email successfully verified`})
+             return res.redirect('https:kindraise.vercel.app/login')
     } catch (error) {
         if(error instanceof jwt.JsonWebTokenError){
             return res.status(500).json({info:`unable to verify because ${error}`})

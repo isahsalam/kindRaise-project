@@ -1,81 +1,204 @@
-const signUpTemplate = (verifyLink, fullName) => {
+// const signUpTemplate = (verifyLink, fullName) => {
+//   return `
+//     <!DOCTYPE html>
+//     <html lang="en">
+//     <head>
+//       <meta charset="UTF-8">
+//       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//       <title>hurray!!! you've successfully signed-up as a </title>
+//       <style>
+//         body {
+//           font-family: Arial, sans-serif;
+//           line-height: 1.6;
+//           color: #333;
+//           background-color: #f7f7f7;
+//           margin: 0;
+//           padding: 0;
+//         }
+//         .container {
+//           max-width: 600px;
+//           margin: 40px auto;
+//           padding: 20px;
+//           border: 1px solid #ddd;
+//           border-radius: 10px;
+//           box-shadow: 0 0 10px rgba(0,0,0,0.1);
+//           background-color: #fff;
+//         }
+//         .header {
+//           background: #007bff;
+//           padding: 10px;
+//           text-align: center;
+//           border-bottom: 1px solid #ddd;
+//           color: #fff;
+//         }
+//         .content {
+//           padding: 20px;
+//           color: #333;
+//         }
+//         .footer {
+//           background: #333;
+//           padding: 10px;
+//           text-align: center;
+//           border-top: 1px solid #ddd;
+//           font-size: 0.9em;
+//           color: #ccc;
+//         }
+//         .button {
+//           display: inline-block;
+//           background-color: #ff9900;
+//           color: #fff;
+//           padding: 10px 20px;
+//           text-decoration: none;
+//           border-radius: 5px;
+//         }
+//       </style>
+//     </head>
+//     <body>
+//       <div class="container">
+//         <div class="header">
+//           <h1>Kind raise serves you best!</h1>
+//         </div>
+//         <div class="content">
+//           <p>congratulation ${fullName},</p>
+//           <p>Thank you for joining our community! We're happy to have you with us.</p>
+//           <p>Please click the button below to verify your account:</p>
+//           <p>
+//             <a href="${verifyLink}" class="button">Verify My Account</a>
+//           </p>
+//           <p>If you did not create an account, please, kindly ignore this email.</p>
+//           <p>Best of luck,<br>kind raise team</p>
+//         </div>
+//         <div class="footer">
+//           <p>&copy; ${new Date().getFullYear()}  kindRaise team.. All rights reserved.</p>
+//         </div>
+//       </div>
+//     </body>
+//     </html>
+//   `;
+// };
+
+
+
+const signUpTemplate = (verifyLink, organizationName) => {
   return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>hurray!!! you've successfully signed-up as a </title>
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          line-height: 1.6;
-          color: #333;
-          background-color: #f7f7f7;
-          margin: 0;
-          padding: 0;
-        }
-        .container {
-          max-width: 600px;
-          margin: 40px auto;
-          padding: 20px;
-          border: 1px solid #ddd;
-          border-radius: 10px;
-          box-shadow: 0 0 10px rgba(0,0,0,0.1);
-          background-color: #fff;
-        }
-        .header {
-          background: #007bff;
-          padding: 10px;
-          text-align: center;
-          border-bottom: 1px solid #ddd;
-          color: #fff;
-        }
-        .content {
-          padding: 20px;
-          color: #333;
-        }
-        .footer {
-          background: #333;
-          padding: 10px;
-          text-align: center;
-          border-top: 1px solid #ddd;
-          font-size: 0.9em;
-          color: #ccc;
-        }
-        .button {
-          display: inline-block;
-          background-color: #ff9900;
-          color: #fff;
-          padding: 10px 20px;
-          text-decoration: none;
-          border-radius: 5px;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <h1>Kind raise serves you best!</h1>
-        </div>
-        <div class="content">
-          <p>congratulation ${fullName},</p>
-          <p>Thank you for joining our community! We're happy to have you with us.</p>
-          <p>Please click the button below to verify your account:</p>
-          <p>
-            <a href="${verifyLink}" class="button">Verify My Account</a>
-          </p>
-          <p>If you did not create an account, please, kindly ignore this email.</p>
-          <p>Best of luck,<br>kind raise team</p>
-        </div>
-        <div class="footer">
-          <p>&copy; ${new Date().getFullYear()}  kindRaise team.. All rights reserved.</p>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hurray! You've successfully signed-up</title>
+<style>
+  body {
+    height: 100vh;
+    background-color: rgb(255, 255, 255);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+  }
+
+  .emailWrapper {
+    width: 100%;
+    max-width: 600px;
+    background-color: rgb(255, 255, 255);
+    box-shadow: 0 0 20px rgb(228, 220, 220);
+    border-radius: 20px;
+    min-width: 350px;
+    padding: 20px;
+  }
+
+  .templateHeader {
+    background-color: #E6FAF2;
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    padding: 15px;
+    text-align: center;
+  }
+
+  .templateBody {
+    padding: 20px;
+    border-bottom: 1px solid lightgray;
+  }
+  
+  .bodyTitle {
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  .btnBox {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .btnBox a {
+    background-color: #448AFF;
+    color: white;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 5px;
+    text-decoration: none;
+  }
+
+  .templateFooter {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.9em;
+    color: #777;
+  }
+
+  .templateFooter ul {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    list-style-type: none;
+    padding: 0;
+    margin: 20px 0 0;
+    font-weight: bold;
+  }
+
+  .templateFooter li {
+    cursor: pointer;
+  }
+  
+  a {
+    color: #448AFF;
+  }
+
+</style>
+</head>
+<body>
+<div class="emailWrapper">
+  <div class="templateHeader">
+    <h1>KindRaise serves you best!</h1>
+  </div>
+  <div class="templateBody">
+    <h2 class="bodyTitle">Congratulations ${organizationName},</h2>
+    <p>Thank you for joining our community! We're happy to have you with us.</p>
+    <p>Please click the button below to verify your account:</p>
+    <div class="btnBox">
+      <a href="${verifyLink}">Verify My Account</a>
+    </div>
+   
+    <p>If you did not create an account, please, kindly ignore this email.</p>
+  </div>
+  <div class="templateFooter">
+    <p>Best of luck,<br>KindRaise team</p>
+    <p>&copy; ${new Date().getFullYear()} KindRaise, Inc. All rights reserved.</p>
+    <ul>
+      <li>Terms</li>
+      <li>Privacy</li>
+      <li>Contact</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>`
 };
+
 
 
 const verifyTemplate = (verifyLink, fullName) => {
