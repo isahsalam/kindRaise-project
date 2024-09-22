@@ -130,7 +130,7 @@ const createDonation = async (req, res) => {
 
     // Update the campaign's donations array and financial details
     campaign.donations.push(newDonation._id); // Push the donation ID
-    campaign.totalRaised = (campaign.totalRaised || 0) + amount;
+    campaign.totalRaised = campaign.totalRaised + Number(amount);
     campaign.supporters = (campaign.supporters || 0) + 1;
 
     const today = new Date();

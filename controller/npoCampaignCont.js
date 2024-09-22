@@ -212,7 +212,7 @@ exports.getNpoCampaigns = async (req, res) => {
   
       
       const totalRaisedFromAllCampaigns = allCampaigns.reduce((total, campaign) => total + (campaign.totalRaised || 0), 0);
-  
+    //   console.log(typeof totalRaisedFromAllCampaigns)
       
       const campaignIds = allCampaigns.map(campaign => campaign._id);
       const donations = await donationModel.find({ campaign: { $in: campaignIds } });
