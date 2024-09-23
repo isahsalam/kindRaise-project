@@ -122,7 +122,7 @@ exports.NpoverifyEmail=async(req,res)=>{
              }
              user.isVerified=true
              await user.save()
-             return res.redirect("https://kindraise.vercel.app/login")
+             return res.redirect("https://kindraiseweb.vercel.app/login")
     } catch (error) {
         if(error instanceof jwt.JsonWebTokenError){
             return res.status(500).json({info:`unable to verify because ${error}`})
