@@ -136,6 +136,7 @@ const signUpTemplate = (verifyLink, organizationName) => {
   .btnBox a {
     background-color: #448AFF;
     color: white;
+    margin-top: 20px
     padding: 10px 20px;
     font-size: 14px;
     font-weight: bold;

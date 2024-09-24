@@ -137,12 +137,12 @@ exports.logIn = async (req, res) => {
             user=await npoModel.findOne({email:lowerCase})
             }
         if (!user) {
-            return res.status(401).json({ info: `user with email not found` })
+            return res.status(400).json({ message: `user with email not found` })
         }
         const verifyPassword = await bcrypt.compare(password, user.password)
 
         if (!verifyPassword) {
-            return res.status(400).json({ info: `incorrect password` })
+            return res.status(400).json({ info: `incorrect password` }) 
         }
         if (!user.isVerified) {
             return res.status(400).json({ message: `please verify your email first` })

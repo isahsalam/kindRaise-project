@@ -240,7 +240,7 @@ const trackDonationHistory = async (req, res) => {
   try {
     // 
     donations = await donationModel.find({ individual: userId })
-      .select("amount name message email")
+      .select("amount name message email timestamps")
       .populate("campaign", "title")
       .sort({ createdAt: -1 });
 
@@ -256,9 +256,14 @@ const trackDonationHistory = async (req, res) => {
     donations = await donationModel.find({
       npo: userId
     })
-      .select("amount name message email")
+      .select("amount name message email createdAt")
       .populate("campaign", "title")
       .sort({ createdAt: -1 });
+
+      donations=donations.map(donation=>({
+        ...donation._doc,
+        donationDate:new Date(donation.createdAt).toLocaleDateString('en-Us')
+      }))
 
 
     if (donations.length === 0) {
