@@ -79,13 +79,10 @@ const getAllDonation = async (req, res) => {
     return res.status(500).json({ error: `Failed to get all donations: ${error.message}` });
   }
 };
-
-
-
 const createDonation = async (req, res) => {
   try {
     const { campaignId } = req.params;
-    const { amount, name, email, message ,campaignName} = req.body;
+    const { amount, name, email, message } = req.body; // Removed unnecessary campaignName from the body
 
     if (!amount || !name || !email) {
       return res.status(400).json({ error: "All fields are required." });
@@ -109,7 +106,7 @@ const createDonation = async (req, res) => {
         name: name || 'anonymous',
         email,
         message,
-        campaignName,
+        campaignName: campaign.title, // Use the title from the campaign
         campaign: campaignId,
         individual: campaign.individual._id
       });
@@ -119,7 +116,7 @@ const createDonation = async (req, res) => {
         name: name || 'anonymous',
         email,
         message,
-        campaignName:campaign.title,
+        campaignName: campaign.title, // Use the title from the campaign
         campaign: campaignId,
         npo: campaign.npo._id
       });
@@ -130,10 +127,14 @@ const createDonation = async (req, res) => {
 
     // Update the campaign's donations array and financial details
     campaign.donations.push(newDonation._id); // Push the donation ID
-    campaign.totalRaised = campaign.totalRaised + Number(amount);
+    campaign.totalRaised += Number(amount);
     campaign.supporters = (campaign.supporters || 0) + 1;
 
+    // Check if today's donation (within last 24 hours)
     const today = new Date();
+    const oneDayAgo = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+    campaign.todaysDonation = newDonation.createdAt >= oneDayAgo ? campaign.totalRaised : campaign.todaysDonation;
+
     const lastDonationDate = campaign.lastDonationDate || new Date(0); // Default date if null
 
     // Reset monthly donation if the month has changed
@@ -142,7 +143,7 @@ const createDonation = async (req, res) => {
     }
 
     // Add the current donation to the monthly total
-    campaign.monthlyDonation += amount;
+    campaign.monthlyDonation += Number(amount);
     campaign.lastDonationDate = today;
 
     // Save the updated campaign
@@ -161,7 +162,7 @@ const createDonation = async (req, res) => {
       await sendmail({
         email: campaignCreatorEmail,
         subject: 'DONATION ALERT!',
-        html: campaignCreatorTemplate(),
+        html: campaignCreatorTemplate(campaign.title, amount),
       });
     }
 
@@ -175,9 +176,7 @@ const createDonation = async (req, res) => {
     console.error('Error creating donation or sending email:', error);
     return res.status(500).json({ error: `Failed to create donation: ${error.message}` });
   }
-}; 
-
-
+};
 
 const trackDonationHistory = async (req, res) => {
   const userId = req.user._id;
@@ -265,7 +264,7 @@ const NpoManagement = async (req, res) => {
       html: `<p>Hello, ${message}</p>`,
     });
 
-    res.status(200).json({ message: 'Campaign creator successfully sent a message' });
+    res.status(200).json({ message: `Campaign creator successfully sent a message to ${donor.email}` });
   } catch (error) {
     console.error('Error sending message:', error);
     res.status(500).json({ message: `Cannot send message because: ${error.message}` });

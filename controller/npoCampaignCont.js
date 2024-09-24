@@ -70,6 +70,7 @@ exports.createCampaignByNpo = async (req, res) => {
             ev,
             profilePic: campaignPhotoUrl,
             totalRaised: 0,
+            todaysDonation: 0,
             monthlyDonation: 0,
             endDate: parsedEndDate,
             lastDonationDate,
