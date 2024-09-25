@@ -1,38 +1,40 @@
-const mongoose=require("mongoose")
+const mongoose = require('mongoose');
+
 const payOutSchema = new mongoose.Schema({
-  donation: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "donation",
-     
-  },
-  BankName: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  accountNumber: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-  },
-  beneficiaryName: { 
-    type: String,
-    trim: true,
-  },
-  npo: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "npo",
-
-  },
-  campaign: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "campaign",
+    donation: {
+        type: Number,
+        required: false, 
+    },
+    BankName: {
+        type: String,
+        required: true,
+    },
+    accountNumber: {
+        type: String,
+        required: true,
+    },
+    beneficiaryName: {
+        type: String,
+        required: true,
+    },
+    npo: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'NPO',
+        required: false,
+    },
+    campaign: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Campaign', 
+        required: false,
+    }],
     
-  },
-}, { timestamps: true });
+    
+    status: {
+        type: String,
+        default: 'pending', 
+    }
+});
 
-const payOutSchemaModel = mongoose.model("payOut", payOutSchema); 
+const payOutSchemaModel = mongoose.model('PayOut', payOutSchema);
+
 module.exports = payOutSchemaModel;
-
-

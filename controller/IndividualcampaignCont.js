@@ -139,7 +139,7 @@ exports.updateIndividualCampaign = async (req, res) => {
                 width: 500, 
                 crop: "scale"
             });
-
+ 
             campaign.profilePic = cloudinaryResult.secure_url;
         }
 

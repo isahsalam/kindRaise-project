@@ -125,7 +125,7 @@ exports.verifyEmail = async (req, res) => {
     }
 }
 exports.logIn = async (req, res) => {
-    try {
+    try { 
         const { email, password } = req.body
         if (!email || !password) {
             return res.status(400).json({ info: `log in must contain email and password` })
