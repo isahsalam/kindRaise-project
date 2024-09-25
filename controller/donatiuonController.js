@@ -82,7 +82,7 @@ const getAllDonation = async (req, res) => {
 const createDonation = async (req, res) => {
   try {
     const { campaignId } = req.params;
-    const { amount, name, email, message } = req.body; // Removed unnecessary campaignName from the body
+    const { amount, name, email, message } = req.body; 
 
     if (!amount || !name || !email) {
       return res.status(400).json({ error: "All fields are required." });

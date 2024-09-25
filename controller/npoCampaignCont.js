@@ -18,7 +18,7 @@ exports.createCampaignByNpo = async (req, res) => {
         const { title, subtitle, story, Goal, endDate, ev } = req.body;
         const npoId = req.user.id;
 
-        if (!title || !subtitle || !story || !Goal || !endDate) {
+        if (!title || !story || !Goal || !endDate) {
             return res.status(400).json({ info: 'All fields are required' });
         }
 

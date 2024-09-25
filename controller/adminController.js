@@ -412,39 +412,37 @@ exports.makeCampaignActive=async(req,res)=>{
     }
 }
 
-// exports.getAllCampaign = async (req, res) => {
-//     try {
-//         const campaigns = await campaignModel.find() 
-//             .sort({ createdAt: -1 }) 
-            
-
-//         return res.status(200).json({
-//             message: "Campaigns retrieved successfully",
-//             campaigns,
-//         });
-//     } catch (error) {
-//         return res.status(500).json({ error: `Error retrieving campaigns: ${error.message}` });
-//     }
-// };
 
 exports.getAllCampaign = async (req, res) => {
     try {
-
-        // Fetch campaigns created by this NPO, sorted by 'createdAt' in descending order
+        // Fetch all campaigns with their related donations, NPO, and individual info
         const allCampaigns = await campaignModel.find()
-            .populate('npo', 'organizationName')
-            .populate('individual','firstName')
+            .populate({
+                path: 'donations',
+                select: 'amount name createdAt',
+            })
+            .populate('npo', 'organizationName')  // Populate NPO information
+            .populate('individual', 'firstName')  // Populate individual information
             .sort({ createdAt: -1 });
 
         if (allCampaigns.length < 1) {
-            return res.status(400).json({ message: `Oops,no campaign found` });
+            return res.status(400).json({ message: `Oops, no campaign found` });
         }
 
-        // Fetch donations related to these campaigns
-        const campaignIds = allCampaigns.map(campaign => campaign._id);
-        const donations = await donationModel.find({ campaign: { $in: campaignIds } });
+        // Format the createdAt date for donations in all campaigns
+        const formattedCampaigns = allCampaigns.map(campaign => {
+            const formattedDonations = campaign.donations.map(donation => ({
+                ...donation._doc,  // Spread other fields from donation
+                donationDate: new Date(donation.createdAt).toLocaleDateString('en-US') // Format date
+            }));
 
-        // Helper function to sum donations by month
+            return {
+                ...campaign._doc,
+                donations: formattedDonations // Replace with formatted donations
+            };
+        });
+
+        // Function to sum donations by month
         const getMonthlyDonations = (donations) => {
             const months = {
                 "January": 0,
@@ -461,37 +459,108 @@ exports.getAllCampaign = async (req, res) => {
                 "December": 0,
             };
 
+            // Sum donations by the month they were created
             donations.forEach(donation => {
                 const donationMonth = new Date(donation.createdAt).toLocaleString('default', { month: 'long' });
-                months[donationMonth] += donation.amount;  // Summing donations by month
+                months[donationMonth] += donation.amount;  
             });
 
             return months;
         };
 
-        // Get monthly donation summary
+        // Flatten donations from all campaigns for monthly donations summary
+        const donations = formattedCampaigns.flatMap(campaign => campaign.donations);
         const monthlyDonations = getMonthlyDonations(donations);
 
-        // Return campaigns and monthly donation summary
         return res.status(200).json({
             message: `Here are all campaigns `,
-            allCampaigns,
+            campaigns: formattedCampaigns,
             monthlyDonations
         });
+
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
 };
 
+
+// exports.getAllCampaign = async (req, res) => {
+//     try {
+//         // Fetch all campaigns with their related donations, NPO, and individual info
+//         const allCampaigns = await campaignModel.find()
+//             .populate({
+//                 path: 'donations',
+//                 select: 'amount name createdAt',
+//             })
+//             .populate('npo', 'organizationName')  // Populate NPO information
+//             .populate('individual', 'firstName')  // Populate individual information
+//             .sort({ createdAt: -1 });
+
+//         if (allCampaigns.length < 1) {
+//             return res.status(400).json({ message: `Oops, no campaign found` });
+//         }
+
+//         // Fetch all donations related to the campaigns
+//         const campaignIds = allCampaigns.map(campaign => campaign._id);
+//         let donations = await donationModel.find({ campaign: { $in: campaignIds } });
+
+//         // Map over donations to format the donationDate
+//         donations = donations.map(donation => ({
+//             ...donation._doc,  // Spread other fields
+//             donationDate: new Date(donation.createdAt).toLocaleDateString('en-US') // Format date
+//         }));
+
+//         // Function to sum donations by month
+//         const getMonthlyDonations = (donations) => {
+//             const months = {
+//                 "January": 0,
+//                 "February": 0,
+//                 "March": 0,
+//                 "April": 0,
+//                 "May": 0,
+//                 "June": 0,
+//                 "July": 0,
+//                 "August": 0,
+//                 "September": 0,
+//                 "October": 0,
+//                 "November": 0,
+//                 "December": 0,
+//             };
+
+//             // Sum donations by the month they were created
+//             donations.forEach(donation => {
+//                 const donationMonth = new Date(donation.createdAt).toLocaleString('default', { month: 'long' });
+//                 months[donationMonth] += donation.amount;  
+//             });
+
+//             return months;
+//         };
+
+//         // Get monthly donation summary
+//         const monthlyDonations = getMonthlyDonations(donations);
+
+//         return res.status(200).json({
+//             message: `Here are all campaigns `,
+//             allCampaigns,
+//             monthlyDonations
+//         });
+
+//     } catch (error) {
+//         return res.status(500).json({ error: error.message });
+//     }
+// };
+
+
 exports.deleteAllCampaign=async(req,res)=>{
     try{
-        const campaign=await campaignModel.findMany()
-        if(campaign <1){
+        const campaigns=await donationModel.find().limit(10)
+        if(campaigns <1){
             return res.status(400).json({
                 message:`no campaign created yet`
             })
         }
-        res.status(200).json({message:` ${campaign.length} campaigns deleted succesfully in your dashboard`,campaign})
+        await donationModel.deleteMany({_id:{$in:campaigns.map((campaign)=>campaign._id)},})
+        res.status(200).json({message:` ${campaigns.length} donation deleted succesfully in your dashboard`,campaigns})
 
     }catch(error){
 res.status(500).json({info:error.message})
