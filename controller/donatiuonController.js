@@ -149,7 +149,7 @@ const createDonation = async (req, res) => {
     // Save the updated campaign
     await campaign.save();
 
-    // Send email to the donor
+    // Send email to the donor campaignTitle
     await sendmail({
       email: newDonation.email,
       subject: 'Thank You for Your Donation!',
@@ -162,7 +162,7 @@ const createDonation = async (req, res) => {
       await sendmail({
         email: campaignCreatorEmail,
         subject: 'DONATION ALERT!',
-        html: campaignCreatorTemplate(campaign.title, amount),
+        html: campaignCreatorTemplate(campaign.title),
       });
     }
 

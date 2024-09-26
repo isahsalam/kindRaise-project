@@ -102,7 +102,7 @@ const signUpTemplate = (verifyLink, organizationName) => {
         <p>To get started, please verify your account by clicking the button below:</p>
         <a href="${verifyLink}" class="button">Verify My Account</a>
         <div class="campaign-info">
-          <p><strong>Your Campaign:</strong> Nourishing the way we live for children</p>
+          
           <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
         </div>
       </div>
@@ -271,7 +271,7 @@ const forgotPasswordTemplate = (resetLink, firstName) => {
           <p>&copy; ${new Date().getFullYear()}  kindRaise co-operation. All rights reserved.</p>
         </div>
       </div>
-    </body>
+    </body> 
     </html>
   `;
 };
@@ -371,18 +371,17 @@ const donationTemplate = (name, amount, campaignTitle, date, donationLink) => {
                 <p>Date: ${date}</p>
             </div>
             <p>We will keep you updated on how your contribution is making a difference. You can view the progress of the campaign below:</p>
-            <a href="${donationLink}" class="button">View Campaign</a>
+          
         </div>
         <div class="footer">
-            <p>&copy; 2024 KindRaise, Inc. All rights reserved. | [Organization Address] | [Contact Information]</p>
+            <p>&copy; 2024 KindRaise, Inc. All rights reserved. | [Organization Address: 132 muyibi street,olodi,apapa,Lagos.] | [Contact us contact.kindraise@gmail.com ]</p>
         </div>
     </div>
 </body>
 </html>
   `;
 };
-
-const campaignCreatorTemplate = (campaignLink = '', name) => {
+const campaignCreatorTemplate = (campaignTitle, campaignLink = '') => {
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -455,14 +454,14 @@ const campaignCreatorTemplate = (campaignLink = '', name) => {
             <h1>New Donation Alert! <span class="heart-icon">❤️</span></h1>
         </div>
         <div class="content">
-            <p>Dear ${name},</p>
-            <p>We're excited to inform you that a donor has contributed to your campaign!</p>
+            <p>Dear Campaign Owner,</p>
+            <p>We're excited to inform you that a donor has contributed to your campaign titled: <strong>${campaignTitle}</strong>!</p>
             <p>You're doing amazing work, and this donation is a testament to the impact you're making. Keep up the fantastic effort!</p>
-            <a href="${campaignLink}" class="button">View Your Campaign</a>
+           
             <p>Stay inspired and continue to drive change!</p>
         </div>
         <div class="footer">
-            <p>&copy; 2024 KindRaise, Inc. All rights reserved. | [Organization Address] | [Contact Information]</p>
+           <p>&copy; 2024 KindRaise, Inc. All rights reserved. | [Organization Address: 132 muyibi street,olodi,apapa,Lagos.] | [Contact us contact.kindraise@gmail.com ]</p>
         </div>
     </div>
 </body>
