@@ -148,7 +148,7 @@ exports.logIn = async (req, res) => {
             return res.status(400).json({ message: `please verify your email first` })
         }
         const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1d" })
-        const { password: _, ...userData } = user.toObject() 
+        const { password: _, ...userData } = user.toObject()  
         return res.status(200).json({
             info: `logged in successful`,
             data: userData, 

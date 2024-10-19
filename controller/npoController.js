@@ -248,7 +248,7 @@ res.status(500).json({info:`unable to change password because ${error}`})
 }
 
 
-
+ 
 exports.updateNpo = async (req, res) => {
     try { 
         const { id } = req.params;
@@ -272,7 +272,7 @@ exports.updateNpo = async (req, res) => {
         if (req.files && req.files.length > 0) { 
             
             const oldFilePath = path.join(__dirname, 'uploads', user.photos);
-            if (fs.existsSync(oldFilePath)) {
+             if (fs.existsSync(oldFilePath)) {
                 fs.unlinkSync(oldFilePath); 
             }
 

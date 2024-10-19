@@ -3,7 +3,7 @@ const campaignrouter=express.Router()
 const uploads=require("../utilis/multer.js")
 
 const{deleteCampaign, createCampaignByIndividual, getAllIndividualCampaigns, getCampaignById, updateIndividualCampaign }=require("../controller/IndividualcampaignCont")
-const {createCampaignByNpo,getSingleCampaign,getNpoCampaigns,updateNpoCampaign}=require("../controller/npoCampaignCont")
+const {createCampaignByNpo,getNpoCampaigns,getSingleCampaign,updateNpoCampaign}=require("../controller/npoCampaignCont")
   
 const { authenticate, authenticateindividual }=require("../middleware/auth")
 const checkCampaignStatus=require("../middleware/checkStatus.js")
@@ -20,5 +20,5 @@ campaignrouter.post("/create-campaign",uploads.single("campaignPic"),authenticat
 campaignrouter.get("/get-NpoallCampaign",authenticate,checkCampaignStatus,getNpoCampaigns)
 campaignrouter.put("/update-campaign/:campaignId",uploads.single ('campaignPic'),authenticate,checkCampaignStatus,updateNpoCampaign)
  
-
+ 
 module.exports=campaignrouter 

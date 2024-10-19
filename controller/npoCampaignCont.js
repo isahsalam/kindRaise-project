@@ -15,7 +15,7 @@ twoYearsFromNow.setFullYear(twoYearsFromNow.getFullYear() + 2);
 
 exports.createCampaignByNpo = async (req, res) => {
     try {
-        const { title, subtitle, story, Goal, endDate } = req.body;
+        const { title, subtitle, story, Goal, endDate, ev } = req.body;
         const npoId = req.user.id;
 
         if (!title || !subtitle || !story || !Goal || !endDate) {
@@ -67,6 +67,7 @@ exports.createCampaignByNpo = async (req, res) => {
             subtitle,
             story,
             Goal,
+            ev,
             profilePic: campaignPhotoUrl,
             totalRaised: 0,
             monthlyDonation: 0,
@@ -84,45 +85,59 @@ exports.createCampaignByNpo = async (req, res) => {
     }
 };
 
-exports.getSingleCampaign = async (req, res) => {
+
+
+
+// Usage example in your API response
+exports.getSingleCampaign = async (req, res) => { 
     try {
         const { campaignId } = req.params;
-        const npoId=req.user.id
-        const campaign = await campaignModel
-            .findById(campaignId)
-            .populate('npo', 'organizationName '); 
+        const campaign = await campaignModel.findById(campaignId).populate('npo', 'organizationName');
 
         if (!campaign) {
-            console.log(campaign)
-            return res.status(404).json({ message: 'Campaign not found' });
-        }
-        if(campaign.npo._id.toString() !== npoId){
-            return res.status(403).json({info:`oops you can only view the campaigns you created`})
+            return res.status(404).json({ info: 'Campaign not found' });
         }
 
-        res.status(200).json({ campaign });
+        // const donations = await donationModel.find({ campaign: campaignId });
+        // const monthlyDonations = getMonthlyDonations(donations);
+
+        return res.status(200).json({
+            campaign,
+            //monthlyDonations,
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        return res.status(500).json({ message: error.message });
     }
 };
 
 
-exports.getNpoCampaigns = async (req, res) => {
+
+
+
+exports.getNpoCampaigns = async (req, res) => { 
     try {
         const npoId = req.user.id; 
-        
+
+        // Find the NPO user
         const user = await npoModel.findById(npoId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        const allCampaigns = await campaignModel.find({ 'npo': npoId }).populate('npo',' organizationName ' );
-       
+
+        // Fetch campaigns created by this NPO, sorted by 'createdAt' in descending order
+        const allCampaigns = await campaignModel.find({ 'npo': npoId })
+            .populate('npo', 'organizationName')
+            .sort({ createdAt: -1 });
+
         if (allCampaigns.length < 1) {
             return res.status(400).json({ message: `Oops, dear ${user.organizationName}, you have not created any campaigns yet` });
         }
+
+        
+       
         return res.status(200).json({ 
             message: `Here are all campaigns created by ${user.organizationName}`, 
-            campaigns: allCampaigns 
+            allCampaigns
         });
     } catch (error) {
         return res.status(500).json({ error: error.message });

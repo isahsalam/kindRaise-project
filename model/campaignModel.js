@@ -40,7 +40,7 @@ const campaignSchema = new mongoose.Schema({
     subtitle: String,
     story: String,
     Goal: { type: Number, required: true }, 
-    ev: { type: Number,default:0},
+    ev: { type: Number,required:false,default:0},
     endDate: { type: Date, default: () => Date.now(), required: true }, 
     profilePic: { type: String, required: true },
     totalRaised: { type: Number, default: 0 },

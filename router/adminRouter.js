@@ -21,4 +21,4 @@ adminrouter.delete("/deleteOneCampaign/:campaignId",authenticate,authenticateAdm
 adminrouter.delete("/delete-every",authenticate,authenticateAdmin,deleteall)
 adminrouter.delete("/delete-everyd",authenticate,authenticateAdmin,deleteallD) 
 adminrouter.delete("/delete-everyc",authenticate,authenticateAdmin,deleteallC) 
-module.exports=adminrouter
+module.exports=adminrouter 

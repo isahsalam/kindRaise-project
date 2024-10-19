@@ -412,20 +412,21 @@ exports.makeCampaignActive=async(req,res)=>{
     }
 }
 
-exports.getAllCampaign=async(req,res)=>{
-    try{
-        const campaign=await campaignModel.find()
-        if(campaign <1){
-            return res.status(400).json({
-                message:`no campaign created yet`
-            })
-        }
-        res.status(200).json({message:`below are all ${campaign.length} campaigns in your dashboard`,campaign})
+exports.getAllCampaign = async (req, res) => {
+    try {
+        const campaigns = await campaignModel.find() 
+            .sort({ createdAt: -1 }) 
+            
 
-    }catch(error){
-res.status(500).json({info:error.message})
+        return res.status(200).json({
+            message: "Campaigns retrieved successfully",
+            campaigns,
+        });
+    } catch (error) {
+        return res.status(500).json({ error: `Error retrieving campaigns: ${error.message}` });
     }
-}
+};
+
 exports.deleteAllCampaign=async(req,res)=>{
     try{
         const campaign=await campaignModel.findMany()
