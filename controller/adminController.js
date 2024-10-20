@@ -412,18 +412,74 @@ exports.makeCampaignActive=async(req,res)=>{
     }
 }
 
-exports.getAllCampaign = async (req, res) => {
-    try {
-        const campaigns = await campaignModel.find() 
-            .sort({ createdAt: -1 }) 
+// exports.getAllCampaign = async (req, res) => {
+//     try {
+//         const campaigns = await campaignModel.find() 
+//             .sort({ createdAt: -1 }) 
             
 
+//         return res.status(200).json({
+//             message: "Campaigns retrieved successfully",
+//             campaigns,
+//         });
+//     } catch (error) {
+//         return res.status(500).json({ error: `Error retrieving campaigns: ${error.message}` });
+//     }
+// };
+
+exports.getAllCampaign = async (req, res) => {
+    try {
+
+        // Fetch campaigns created by this NPO, sorted by 'createdAt' in descending order
+        const allCampaigns = await campaignModel.find()
+            .populate('npo', 'organizationName')
+            .populate('individual','firstName')
+            .sort({ createdAt: -1 });
+
+        if (allCampaigns.length < 1) {
+            return res.status(400).json({ message: `Oops,no campaign found` });
+        }
+
+        // Fetch donations related to these campaigns
+        const campaignIds = allCampaigns.map(campaign => campaign._id);
+        const donations = await donationModel.find({ campaign: { $in: campaignIds } });
+
+        // Helper function to sum donations by month
+        const getMonthlyDonations = (donations) => {
+            const months = {
+                "January": 0,
+                "February": 0,
+                "March": 0,
+                "April": 0,
+                "May": 0,
+                "June": 0,
+                "July": 0,
+                "August": 0,
+                "September": 0,
+                "October": 0,
+                "November": 0,
+                "December": 0,
+            };
+
+            donations.forEach(donation => {
+                const donationMonth = new Date(donation.createdAt).toLocaleString('default', { month: 'long' });
+                months[donationMonth] += donation.amount;  // Summing donations by month
+            });
+
+            return months;
+        };
+
+        // Get monthly donation summary
+        const monthlyDonations = getMonthlyDonations(donations);
+
+        // Return campaigns and monthly donation summary
         return res.status(200).json({
-            message: "Campaigns retrieved successfully",
-            campaigns,
+            message: `Here are all campaigns `,
+            allCampaigns,
+            monthlyDonations
         });
     } catch (error) {
-        return res.status(500).json({ error: `Error retrieving campaigns: ${error.message}` });
+        return res.status(500).json({ error: error.message });
     }
 };
 
